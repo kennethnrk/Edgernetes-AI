@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
+	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 )
 
@@ -27,11 +27,11 @@ func TestRegisterAndGetNode(t *testing.T) {
 		Name: "test-node",
 	}
 
-	if err := registry.RegisterNode(s, nodeID, info); err != nil {
+	if err := registrycontroller.RegisterNode(s, nodeID, info); err != nil {
 		t.Fatalf("RegisterNode() error = %v", err)
 	}
 
-	got, found, err := registry.GetNodeByID(s, nodeID)
+	got, found, err := registrycontroller.GetNodeByID(s, nodeID)
 	if err != nil {
 		t.Fatalf("GetNodeByID() error = %v", err)
 	}
@@ -57,11 +57,11 @@ func TestUpdateNodeInfo_PreservesRegisteredAt(t *testing.T) {
 	initial := store.NodeInfo{
 		Name: "initial",
 	}
-	if err := registry.RegisterNode(s, nodeID, initial); err != nil {
+	if err := registrycontroller.RegisterNode(s, nodeID, initial); err != nil {
 		t.Fatalf("RegisterNode() error = %v", err)
 	}
 
-	original, found, err := registry.GetNodeByID(s, nodeID)
+	original, found, err := registrycontroller.GetNodeByID(s, nodeID)
 	if err != nil || !found {
 		t.Fatalf("GetNodeByID() after register error = %v, found = %v", err, found)
 	}
@@ -72,11 +72,11 @@ func TestUpdateNodeInfo_PreservesRegisteredAt(t *testing.T) {
 	updated := store.NodeInfo{
 		Name: "updated",
 	}
-	if err := registry.UpdateNodeInfo(s, nodeID, updated); err != nil {
+	if err := registrycontroller.UpdateNodeInfo(s, nodeID, updated); err != nil {
 		t.Fatalf("UpdateNodeInfo() error = %v", err)
 	}
 
-	got, found, err := registry.GetNodeByID(s, nodeID)
+	got, found, err := registrycontroller.GetNodeByID(s, nodeID)
 	if err != nil || !found {
 		t.Fatalf("GetNodeByID() after update error = %v, found = %v", err, found)
 	}
@@ -96,7 +96,7 @@ func TestUpdateNodeStatus_NotFound(t *testing.T) {
 	s := newTestStore(t)
 	defer s.Close()
 
-	err := registry.UpdateNodeStatus(s, "missing-node", store.StatusOnline)
+	err := registrycontroller.UpdateNodeStatus(s, "missing-node", store.StatusOnline)
 	if err == nil {
 		t.Fatalf("UpdateNodeStatus() error = nil, want non-nil for missing node")
 	}
@@ -111,22 +111,22 @@ func TestUpdateNodeStatus_Success(t *testing.T) {
 		Name:   "status-node",
 		Status: store.StatusOffline,
 	}
-	if err := registry.RegisterNode(s, nodeID, initial); err != nil {
+	if err := registrycontroller.RegisterNode(s, nodeID, initial); err != nil {
 		t.Fatalf("RegisterNode() error = %v", err)
 	}
 
-	before, found, err := registry.GetNodeByID(s, nodeID)
+	before, found, err := registrycontroller.GetNodeByID(s, nodeID)
 	if err != nil || !found {
 		t.Fatalf("GetNodeByID() before status update error = %v, found = %v", err, found)
 	}
 
 	time.Sleep(10 * time.Millisecond)
 
-	if err := registry.UpdateNodeStatus(s, nodeID, store.StatusOnline); err != nil {
+	if err := registrycontroller.UpdateNodeStatus(s, nodeID, store.StatusOnline); err != nil {
 		t.Fatalf("UpdateNodeStatus() error = %v", err)
 	}
 
-	after, found, err := registry.GetNodeByID(s, nodeID)
+	after, found, err := registrycontroller.GetNodeByID(s, nodeID)
 	if err != nil || !found {
 		t.Fatalf("GetNodeByID() after status update error = %v, found = %v", err, found)
 	}
@@ -152,12 +152,12 @@ func TestListDevices(t *testing.T) {
 	}
 
 	for _, n := range nodes {
-		if err := registry.RegisterNode(s, n.ID, n); err != nil {
+		if err := registrycontroller.RegisterNode(s, n.ID, n); err != nil {
 			t.Fatalf("RegisterNode(%q) error = %v", n.ID, err)
 		}
 	}
 
-	list, err := registry.ListNodes(s)
+	list, err := registrycontroller.ListNodes(s)
 	if err != nil {
 		t.Fatalf("ListNodes() error = %v", err)
 	}
@@ -195,11 +195,11 @@ func TestRegisterAndGetModel(t *testing.T) {
 		Replicas:  2,
 	}
 
-	if err := registry.RegisterModel(s, modelID, info); err != nil {
+	if err := registrycontroller.RegisterModel(s, modelID, info); err != nil {
 		t.Fatalf("RegisterModel() error = %v", err)
 	}
 
-	got, found, err := registry.GetModelByID(s, modelID)
+	got, found, err := registrycontroller.GetModelByID(s, modelID)
 	if err != nil {
 		t.Fatalf("GetModelByID() error = %v", err)
 	}
@@ -238,7 +238,7 @@ func TestUpdateModelInfo(t *testing.T) {
 		Name:    "initial-model",
 		Version: "v1",
 	}
-	if err := registry.RegisterModel(s, modelID, initial); err != nil {
+	if err := registrycontroller.RegisterModel(s, modelID, initial); err != nil {
 		t.Fatalf("RegisterModel() error = %v", err)
 	}
 
@@ -250,11 +250,11 @@ func TestUpdateModelInfo(t *testing.T) {
 		ModelSize: 2048,
 		Replicas:  3,
 	}
-	if err := registry.UpdateModelInfo(s, modelID, updated); err != nil {
+	if err := registrycontroller.UpdateModelInfo(s, modelID, updated); err != nil {
 		t.Fatalf("UpdateModelInfo() error = %v", err)
 	}
 
-	got, found, err := registry.GetModelByID(s, modelID)
+	got, found, err := registrycontroller.GetModelByID(s, modelID)
 	if err != nil || !found {
 		t.Fatalf("GetModelByID() after update error = %v, found = %v", err, found)
 	}
@@ -290,15 +290,15 @@ func TestDeRegisterModel(t *testing.T) {
 	info := store.ModelInfo{
 		Name: "to-be-deleted",
 	}
-	if err := registry.RegisterModel(s, modelID, info); err != nil {
+	if err := registrycontroller.RegisterModel(s, modelID, info); err != nil {
 		t.Fatalf("RegisterModel() error = %v", err)
 	}
 
-	if err := registry.DeRegisterModel(s, modelID); err != nil {
+	if err := registrycontroller.DeRegisterModel(s, modelID); err != nil {
 		t.Fatalf("DeRegisterModel() error = %v", err)
 	}
 
-	_, found, err := registry.GetModelByID(s, modelID)
+	_, found, err := registrycontroller.GetModelByID(s, modelID)
 	if err != nil {
 		t.Fatalf("GetModelByID() after delete error = %v", err)
 	}
@@ -317,12 +317,12 @@ func TestListModels(t *testing.T) {
 	}
 
 	for _, m := range models {
-		if err := registry.RegisterModel(s, m.ID, m); err != nil {
+		if err := registrycontroller.RegisterModel(s, m.ID, m); err != nil {
 			t.Fatalf("RegisterModel(%q) error = %v", m.ID, err)
 		}
 	}
 
-	list, err := registry.ListModels(s)
+	list, err := registrycontroller.ListModels(s)
 	if err != nil {
 		t.Fatalf("ListModels() error = %v", err)
 	}

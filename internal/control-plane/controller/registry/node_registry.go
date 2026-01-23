@@ -1,4 +1,4 @@
-package registry
+package registrycontroller
 
 import (
 	"encoding/json"
