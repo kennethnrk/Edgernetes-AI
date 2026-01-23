@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package nodeRegistryAPI;
+
+option go_package = "internal/common/pb/node;nodepb";
+
+service NodeRegistryAPI {
+    rpc RegisterNode(NodeInfo) returns (RegisterNodeResponse);
+    rpc DeRegisterNode(NodeID) returns (BoolResponse);
+    rpc UpdateNode(UpdateNodeRequest) returns (BoolResponse);
+    rpc GetNode(NodeID) returns (NodeInfo);
+    rpc ListNodes(None) returns (ListNodesResponse);
+}
+
+message None {}
+
+message MemoryInfo {
+    int64 total = 1;
+    int64 free = 2;
+    int64 used = 3;
+    string type = 4;
+}
+
+message StorageInfo {
+    int64 total = 1;
+    int64 free = 2;
+    int64 used = 3;
+    int64 read_speed = 4;
+    int64 write_speed = 5;
+}
+
+message ComputeDevice {
+    string type = 1;
+    string vendor = 2;
+    string model = 3;
+    int64 memory = 4;
+    int64 compute_units = 5;
+    float tops = 6;
+    int64 power_draw_watts = 7;
+}
+
+message ResourceCapabilities {
+    MemoryInfo memory = 1;
+    StorageInfo storage = 2;
+    repeated ComputeDevice compute_devices = 3;
+}
+
+message NetworkInfo {
+    string type = 1;
+    int64 bandwidth = 2;
+    bool is_metered = 3;
+    int64 latency = 4;
+}
+
+message NodeMetadata {
+    string os_type = 1;
+    string os_version = 2;
+    string agent_version = 3;
+    string hostname = 4;
+}
+
+message NodeInfo {
+    string node_id = 1;
+    string name = 2;
+    string ip = 3;
+    int32 port = 4;
+    NodeMetadata metadata = 5;
+    NetworkInfo network_info = 6;
+    ResourceCapabilities resource_capabilities = 7;
+}
+
+message RegisterNodeResponse {
+    string node_id = 1;
+}
+
+message UpdateNodeRequest {
+    string node_id = 1;
+    NodeMetadata metadata = 2;
+    NetworkInfo network_info = 3;
+    ResourceCapabilities resource_capabilities = 4;
+}
+
+message BoolResponse {
+    bool success = 1;
+}
+
+message NodeID {
+    string node_id = 1;
+}
+
+message ListNodesResponse {
+    repeated NodeInfo nodes = 1;
+}

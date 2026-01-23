@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package modelRegistryAPI;
+
+option go_package = "internal/common/pb/model;modelpb";
+
+service ModelRegistryAPI {
+    rpc RegisterModel(ModelInfo) returns (BoolResponse);
+    rpc DeRegisterModel(ModelID) returns (BoolResponse);
+    rpc UpdateModel(UpdateModelRequest) returns (BoolResponse);
+    rpc GetModel(ModelID) returns (ModelInfo);
+    rpc ListModels(None) returns (ListModelsResponse);
+}
+
+message None {}
+
+message BoolResponse {
+    bool success = 1;
+}
+
+message ModelInfo {
+    string id = 1;
+    string name = 2;
+    string version = 3;
+    string file_path = 4;
+    string model_type = 5;
+    int64 model_size = 6;
+    int32 replicas = 7;
+    string input_format = 8;
+}
+
+message UpdateModelRequest {
+    string id = 1;
+    string name = 2;
+    string version = 3;
+    string file_path = 4;
+    string model_type = 5;
+    int64 model_size = 6;
+    int32 replicas = 7;
+    string input_format = 8;
+}
+
+message ModelID {
+    string id = 1;
+}
+
+message ListModelsResponse {
+    repeated ModelInfo models = 1;
+}
