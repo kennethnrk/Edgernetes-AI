@@ -131,15 +131,6 @@ func protoToStoreNodeInfo(pb *nodepb.NodeInfo) store.NodeInfo {
 		}
 	}
 
-	if pb.GetNetworkInfo() != nil {
-		info.NetworkInfo = store.NetworkInfo{
-			Type:      pb.GetNetworkInfo().GetType(),
-			Bandwidth: pb.GetNetworkInfo().GetBandwidth(),
-			IsMetered: pb.GetNetworkInfo().GetIsMetered(),
-			Latency:   int(pb.GetNetworkInfo().GetLatency()),
-		}
-	}
-
 	if pb.GetResourceCapabilities() != nil {
 		rc := pb.GetResourceCapabilities()
 		info.ResourceCapabilities = store.ResourceCapabilities{}
@@ -192,15 +183,6 @@ func updateRequestToStoreNodeInfo(req *nodepb.UpdateNodeRequest, existing *store
 			OSType:       req.GetMetadata().GetOsType(),
 			AgentVersion: req.GetMetadata().GetAgentVersion(),
 			Hostname:     req.GetMetadata().GetHostname(),
-		}
-	}
-
-	if req.GetNetworkInfo() != nil {
-		info.NetworkInfo = store.NetworkInfo{
-			Type:      req.GetNetworkInfo().GetType(),
-			Bandwidth: req.GetNetworkInfo().GetBandwidth(),
-			IsMetered: req.GetNetworkInfo().GetIsMetered(),
-			Latency:   int(req.GetNetworkInfo().GetLatency()),
 		}
 	}
 
@@ -260,14 +242,6 @@ func storeNodeInfoToProto(info *store.NodeInfo) *nodepb.NodeInfo {
 		OsType:       info.Metadata.OSType,
 		AgentVersion: info.Metadata.AgentVersion,
 		Hostname:     info.Metadata.Hostname,
-	}
-
-	// Convert NetworkInfo
-	pb.NetworkInfo = &nodepb.NetworkInfo{
-		Type:      info.NetworkInfo.Type,
-		Bandwidth: info.NetworkInfo.Bandwidth,
-		IsMetered: info.NetworkInfo.IsMetered,
-		Latency:   int64(info.NetworkInfo.Latency),
 	}
 
 	// Convert ResourceCapabilities

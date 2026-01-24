@@ -45,13 +45,6 @@ message ResourceCapabilities {
     repeated ComputeDevice compute_devices = 3;
 }
 
-message NetworkInfo {
-    string type = 1;
-    int64 bandwidth = 2;
-    bool is_metered = 3;
-    int64 latency = 4;
-}
-
 message NodeMetadata {
     string os_type = 1;
     string agent_version = 2;
@@ -64,8 +57,7 @@ message NodeInfo {
     string ip = 3;
     int32 port = 4;
     NodeMetadata metadata = 5;
-    NetworkInfo network_info = 6;
-    ResourceCapabilities resource_capabilities = 7;
+    ResourceCapabilities resource_capabilities = 6;
 }
 
 message RegisterNodeResponse {
@@ -75,8 +67,7 @@ message RegisterNodeResponse {
 message UpdateNodeRequest {
     string node_id = 1;
     NodeMetadata metadata = 2;
-    NetworkInfo network_info = 3;
-    ResourceCapabilities resource_capabilities = 4;
+    ResourceCapabilities resource_capabilities = 3;
 }
 
 message BoolResponse {

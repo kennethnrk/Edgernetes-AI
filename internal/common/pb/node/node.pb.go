@@ -353,74 +353,6 @@ func (x *ResourceCapabilities) GetComputeDevices() []*ComputeDevice {
 	return nil
 }
 
-type NetworkInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Bandwidth     int64                  `protobuf:"varint,2,opt,name=bandwidth,proto3" json:"bandwidth,omitempty"`
-	IsMetered     bool                   `protobuf:"varint,3,opt,name=is_metered,json=isMetered,proto3" json:"is_metered,omitempty"`
-	Latency       int64                  `protobuf:"varint,4,opt,name=latency,proto3" json:"latency,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *NetworkInfo) Reset() {
-	*x = NetworkInfo{}
-	mi := &file_api_proto_node_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NetworkInfo) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NetworkInfo) ProtoMessage() {}
-
-func (x *NetworkInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NetworkInfo.ProtoReflect.Descriptor instead.
-func (*NetworkInfo) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *NetworkInfo) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *NetworkInfo) GetBandwidth() int64 {
-	if x != nil {
-		return x.Bandwidth
-	}
-	return 0
-}
-
-func (x *NetworkInfo) GetIsMetered() bool {
-	if x != nil {
-		return x.IsMetered
-	}
-	return false
-}
-
-func (x *NetworkInfo) GetLatency() int64 {
-	if x != nil {
-		return x.Latency
-	}
-	return 0
-}
-
 type NodeMetadata struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OsType        string                 `protobuf:"bytes,1,opt,name=os_type,json=osType,proto3" json:"os_type,omitempty"`
@@ -432,7 +364,7 @@ type NodeMetadata struct {
 
 func (x *NodeMetadata) Reset() {
 	*x = NodeMetadata{}
-	mi := &file_api_proto_node_proto_msgTypes[6]
+	mi := &file_api_proto_node_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -444,7 +376,7 @@ func (x *NodeMetadata) String() string {
 func (*NodeMetadata) ProtoMessage() {}
 
 func (x *NodeMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[6]
+	mi := &file_api_proto_node_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -457,7 +389,7 @@ func (x *NodeMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeMetadata.ProtoReflect.Descriptor instead.
 func (*NodeMetadata) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{6}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *NodeMetadata) GetOsType() string {
@@ -488,15 +420,14 @@ type NodeInfo struct {
 	Ip                   string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
 	Port                 int32                  `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
 	Metadata             *NodeMetadata          `protobuf:"bytes,5,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	NetworkInfo          *NetworkInfo           `protobuf:"bytes,6,opt,name=network_info,json=networkInfo,proto3" json:"network_info,omitempty"`
-	ResourceCapabilities *ResourceCapabilities  `protobuf:"bytes,7,opt,name=resource_capabilities,json=resourceCapabilities,proto3" json:"resource_capabilities,omitempty"`
+	ResourceCapabilities *ResourceCapabilities  `protobuf:"bytes,6,opt,name=resource_capabilities,json=resourceCapabilities,proto3" json:"resource_capabilities,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *NodeInfo) Reset() {
 	*x = NodeInfo{}
-	mi := &file_api_proto_node_proto_msgTypes[7]
+	mi := &file_api_proto_node_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +439,7 @@ func (x *NodeInfo) String() string {
 func (*NodeInfo) ProtoMessage() {}
 
 func (x *NodeInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[7]
+	mi := &file_api_proto_node_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +452,7 @@ func (x *NodeInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeInfo.ProtoReflect.Descriptor instead.
 func (*NodeInfo) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{7}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *NodeInfo) GetNodeId() string {
@@ -559,13 +490,6 @@ func (x *NodeInfo) GetMetadata() *NodeMetadata {
 	return nil
 }
 
-func (x *NodeInfo) GetNetworkInfo() *NetworkInfo {
-	if x != nil {
-		return x.NetworkInfo
-	}
-	return nil
-}
-
 func (x *NodeInfo) GetResourceCapabilities() *ResourceCapabilities {
 	if x != nil {
 		return x.ResourceCapabilities
@@ -582,7 +506,7 @@ type RegisterNodeResponse struct {
 
 func (x *RegisterNodeResponse) Reset() {
 	*x = RegisterNodeResponse{}
-	mi := &file_api_proto_node_proto_msgTypes[8]
+	mi := &file_api_proto_node_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -594,7 +518,7 @@ func (x *RegisterNodeResponse) String() string {
 func (*RegisterNodeResponse) ProtoMessage() {}
 
 func (x *RegisterNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[8]
+	mi := &file_api_proto_node_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,7 +531,7 @@ func (x *RegisterNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterNodeResponse.ProtoReflect.Descriptor instead.
 func (*RegisterNodeResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{8}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RegisterNodeResponse) GetNodeId() string {
@@ -621,15 +545,14 @@ type UpdateNodeRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	NodeId               string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	Metadata             *NodeMetadata          `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	NetworkInfo          *NetworkInfo           `protobuf:"bytes,3,opt,name=network_info,json=networkInfo,proto3" json:"network_info,omitempty"`
-	ResourceCapabilities *ResourceCapabilities  `protobuf:"bytes,4,opt,name=resource_capabilities,json=resourceCapabilities,proto3" json:"resource_capabilities,omitempty"`
+	ResourceCapabilities *ResourceCapabilities  `protobuf:"bytes,3,opt,name=resource_capabilities,json=resourceCapabilities,proto3" json:"resource_capabilities,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *UpdateNodeRequest) Reset() {
 	*x = UpdateNodeRequest{}
-	mi := &file_api_proto_node_proto_msgTypes[9]
+	mi := &file_api_proto_node_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +564,7 @@ func (x *UpdateNodeRequest) String() string {
 func (*UpdateNodeRequest) ProtoMessage() {}
 
 func (x *UpdateNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[9]
+	mi := &file_api_proto_node_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +577,7 @@ func (x *UpdateNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateNodeRequest.ProtoReflect.Descriptor instead.
 func (*UpdateNodeRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{9}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateNodeRequest) GetNodeId() string {
@@ -667,13 +590,6 @@ func (x *UpdateNodeRequest) GetNodeId() string {
 func (x *UpdateNodeRequest) GetMetadata() *NodeMetadata {
 	if x != nil {
 		return x.Metadata
-	}
-	return nil
-}
-
-func (x *UpdateNodeRequest) GetNetworkInfo() *NetworkInfo {
-	if x != nil {
-		return x.NetworkInfo
 	}
 	return nil
 }
@@ -694,7 +610,7 @@ type BoolResponse struct {
 
 func (x *BoolResponse) Reset() {
 	*x = BoolResponse{}
-	mi := &file_api_proto_node_proto_msgTypes[10]
+	mi := &file_api_proto_node_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -706,7 +622,7 @@ func (x *BoolResponse) String() string {
 func (*BoolResponse) ProtoMessage() {}
 
 func (x *BoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[10]
+	mi := &file_api_proto_node_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -719,7 +635,7 @@ func (x *BoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BoolResponse.ProtoReflect.Descriptor instead.
 func (*BoolResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{10}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BoolResponse) GetSuccess() bool {
@@ -738,7 +654,7 @@ type NodeID struct {
 
 func (x *NodeID) Reset() {
 	*x = NodeID{}
-	mi := &file_api_proto_node_proto_msgTypes[11]
+	mi := &file_api_proto_node_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -750,7 +666,7 @@ func (x *NodeID) String() string {
 func (*NodeID) ProtoMessage() {}
 
 func (x *NodeID) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[11]
+	mi := &file_api_proto_node_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -763,7 +679,7 @@ func (x *NodeID) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeID.ProtoReflect.Descriptor instead.
 func (*NodeID) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{11}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *NodeID) GetNodeId() string {
@@ -782,7 +698,7 @@ type ListNodesResponse struct {
 
 func (x *ListNodesResponse) Reset() {
 	*x = ListNodesResponse{}
-	mi := &file_api_proto_node_proto_msgTypes[12]
+	mi := &file_api_proto_node_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +710,7 @@ func (x *ListNodesResponse) String() string {
 func (*ListNodesResponse) ProtoMessage() {}
 
 func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_node_proto_msgTypes[12]
+	mi := &file_api_proto_node_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +723,7 @@ func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_node_proto_rawDescGZIP(), []int{12}
+	return file_api_proto_node_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListNodesResponse) GetNodes() []*NodeInfo {
@@ -848,32 +764,24 @@ const file_api_proto_node_proto_rawDesc = "" +
 	"\x14ResourceCapabilities\x123\n" +
 	"\x06memory\x18\x01 \x01(\v2\x1b.nodeRegistryAPI.MemoryInfoR\x06memory\x126\n" +
 	"\astorage\x18\x02 \x01(\v2\x1c.nodeRegistryAPI.StorageInfoR\astorage\x12G\n" +
-	"\x0fcompute_devices\x18\x03 \x03(\v2\x1e.nodeRegistryAPI.ComputeDeviceR\x0ecomputeDevices\"x\n" +
-	"\vNetworkInfo\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1c\n" +
-	"\tbandwidth\x18\x02 \x01(\x03R\tbandwidth\x12\x1d\n" +
-	"\n" +
-	"is_metered\x18\x03 \x01(\bR\tisMetered\x12\x18\n" +
-	"\alatency\x18\x04 \x01(\x03R\alatency\"h\n" +
+	"\x0fcompute_devices\x18\x03 \x03(\v2\x1e.nodeRegistryAPI.ComputeDeviceR\x0ecomputeDevices\"h\n" +
 	"\fNodeMetadata\x12\x17\n" +
 	"\aos_type\x18\x01 \x01(\tR\x06osType\x12#\n" +
 	"\ragent_version\x18\x02 \x01(\tR\fagentVersion\x12\x1a\n" +
-	"\bhostname\x18\x03 \x01(\tR\bhostname\"\xb3\x02\n" +
+	"\bhostname\x18\x03 \x01(\tR\bhostname\"\xf2\x01\n" +
 	"\bNodeInfo\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02ip\x18\x03 \x01(\tR\x02ip\x12\x12\n" +
 	"\x04port\x18\x04 \x01(\x05R\x04port\x129\n" +
-	"\bmetadata\x18\x05 \x01(\v2\x1d.nodeRegistryAPI.NodeMetadataR\bmetadata\x12?\n" +
-	"\fnetwork_info\x18\x06 \x01(\v2\x1c.nodeRegistryAPI.NetworkInfoR\vnetworkInfo\x12Z\n" +
-	"\x15resource_capabilities\x18\a \x01(\v2%.nodeRegistryAPI.ResourceCapabilitiesR\x14resourceCapabilities\"/\n" +
+	"\bmetadata\x18\x05 \x01(\v2\x1d.nodeRegistryAPI.NodeMetadataR\bmetadata\x12Z\n" +
+	"\x15resource_capabilities\x18\x06 \x01(\v2%.nodeRegistryAPI.ResourceCapabilitiesR\x14resourceCapabilities\"/\n" +
 	"\x14RegisterNodeResponse\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\"\x84\x02\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\"\xc3\x01\n" +
 	"\x11UpdateNodeRequest\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x129\n" +
-	"\bmetadata\x18\x02 \x01(\v2\x1d.nodeRegistryAPI.NodeMetadataR\bmetadata\x12?\n" +
-	"\fnetwork_info\x18\x03 \x01(\v2\x1c.nodeRegistryAPI.NetworkInfoR\vnetworkInfo\x12Z\n" +
-	"\x15resource_capabilities\x18\x04 \x01(\v2%.nodeRegistryAPI.ResourceCapabilitiesR\x14resourceCapabilities\"(\n" +
+	"\bmetadata\x18\x02 \x01(\v2\x1d.nodeRegistryAPI.NodeMetadataR\bmetadata\x12Z\n" +
+	"\x15resource_capabilities\x18\x03 \x01(\v2%.nodeRegistryAPI.ResourceCapabilitiesR\x14resourceCapabilities\"(\n" +
 	"\fBoolResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"!\n" +
 	"\x06NodeID\x12\x17\n" +
@@ -900,48 +808,45 @@ func file_api_proto_node_proto_rawDescGZIP() []byte {
 	return file_api_proto_node_proto_rawDescData
 }
 
-var file_api_proto_node_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_api_proto_node_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_api_proto_node_proto_goTypes = []any{
 	(*None)(nil),                 // 0: nodeRegistryAPI.None
 	(*MemoryInfo)(nil),           // 1: nodeRegistryAPI.MemoryInfo
 	(*StorageInfo)(nil),          // 2: nodeRegistryAPI.StorageInfo
 	(*ComputeDevice)(nil),        // 3: nodeRegistryAPI.ComputeDevice
 	(*ResourceCapabilities)(nil), // 4: nodeRegistryAPI.ResourceCapabilities
-	(*NetworkInfo)(nil),          // 5: nodeRegistryAPI.NetworkInfo
-	(*NodeMetadata)(nil),         // 6: nodeRegistryAPI.NodeMetadata
-	(*NodeInfo)(nil),             // 7: nodeRegistryAPI.NodeInfo
-	(*RegisterNodeResponse)(nil), // 8: nodeRegistryAPI.RegisterNodeResponse
-	(*UpdateNodeRequest)(nil),    // 9: nodeRegistryAPI.UpdateNodeRequest
-	(*BoolResponse)(nil),         // 10: nodeRegistryAPI.BoolResponse
-	(*NodeID)(nil),               // 11: nodeRegistryAPI.NodeID
-	(*ListNodesResponse)(nil),    // 12: nodeRegistryAPI.ListNodesResponse
+	(*NodeMetadata)(nil),         // 5: nodeRegistryAPI.NodeMetadata
+	(*NodeInfo)(nil),             // 6: nodeRegistryAPI.NodeInfo
+	(*RegisterNodeResponse)(nil), // 7: nodeRegistryAPI.RegisterNodeResponse
+	(*UpdateNodeRequest)(nil),    // 8: nodeRegistryAPI.UpdateNodeRequest
+	(*BoolResponse)(nil),         // 9: nodeRegistryAPI.BoolResponse
+	(*NodeID)(nil),               // 10: nodeRegistryAPI.NodeID
+	(*ListNodesResponse)(nil),    // 11: nodeRegistryAPI.ListNodesResponse
 }
 var file_api_proto_node_proto_depIdxs = []int32{
 	1,  // 0: nodeRegistryAPI.ResourceCapabilities.memory:type_name -> nodeRegistryAPI.MemoryInfo
 	2,  // 1: nodeRegistryAPI.ResourceCapabilities.storage:type_name -> nodeRegistryAPI.StorageInfo
 	3,  // 2: nodeRegistryAPI.ResourceCapabilities.compute_devices:type_name -> nodeRegistryAPI.ComputeDevice
-	6,  // 3: nodeRegistryAPI.NodeInfo.metadata:type_name -> nodeRegistryAPI.NodeMetadata
-	5,  // 4: nodeRegistryAPI.NodeInfo.network_info:type_name -> nodeRegistryAPI.NetworkInfo
-	4,  // 5: nodeRegistryAPI.NodeInfo.resource_capabilities:type_name -> nodeRegistryAPI.ResourceCapabilities
-	6,  // 6: nodeRegistryAPI.UpdateNodeRequest.metadata:type_name -> nodeRegistryAPI.NodeMetadata
-	5,  // 7: nodeRegistryAPI.UpdateNodeRequest.network_info:type_name -> nodeRegistryAPI.NetworkInfo
-	4,  // 8: nodeRegistryAPI.UpdateNodeRequest.resource_capabilities:type_name -> nodeRegistryAPI.ResourceCapabilities
-	7,  // 9: nodeRegistryAPI.ListNodesResponse.nodes:type_name -> nodeRegistryAPI.NodeInfo
-	7,  // 10: nodeRegistryAPI.NodeRegistryAPI.RegisterNode:input_type -> nodeRegistryAPI.NodeInfo
-	11, // 11: nodeRegistryAPI.NodeRegistryAPI.DeRegisterNode:input_type -> nodeRegistryAPI.NodeID
-	9,  // 12: nodeRegistryAPI.NodeRegistryAPI.UpdateNode:input_type -> nodeRegistryAPI.UpdateNodeRequest
-	11, // 13: nodeRegistryAPI.NodeRegistryAPI.GetNode:input_type -> nodeRegistryAPI.NodeID
-	0,  // 14: nodeRegistryAPI.NodeRegistryAPI.ListNodes:input_type -> nodeRegistryAPI.None
-	8,  // 15: nodeRegistryAPI.NodeRegistryAPI.RegisterNode:output_type -> nodeRegistryAPI.RegisterNodeResponse
-	10, // 16: nodeRegistryAPI.NodeRegistryAPI.DeRegisterNode:output_type -> nodeRegistryAPI.BoolResponse
-	10, // 17: nodeRegistryAPI.NodeRegistryAPI.UpdateNode:output_type -> nodeRegistryAPI.BoolResponse
-	7,  // 18: nodeRegistryAPI.NodeRegistryAPI.GetNode:output_type -> nodeRegistryAPI.NodeInfo
-	12, // 19: nodeRegistryAPI.NodeRegistryAPI.ListNodes:output_type -> nodeRegistryAPI.ListNodesResponse
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	5,  // 3: nodeRegistryAPI.NodeInfo.metadata:type_name -> nodeRegistryAPI.NodeMetadata
+	4,  // 4: nodeRegistryAPI.NodeInfo.resource_capabilities:type_name -> nodeRegistryAPI.ResourceCapabilities
+	5,  // 5: nodeRegistryAPI.UpdateNodeRequest.metadata:type_name -> nodeRegistryAPI.NodeMetadata
+	4,  // 6: nodeRegistryAPI.UpdateNodeRequest.resource_capabilities:type_name -> nodeRegistryAPI.ResourceCapabilities
+	6,  // 7: nodeRegistryAPI.ListNodesResponse.nodes:type_name -> nodeRegistryAPI.NodeInfo
+	6,  // 8: nodeRegistryAPI.NodeRegistryAPI.RegisterNode:input_type -> nodeRegistryAPI.NodeInfo
+	10, // 9: nodeRegistryAPI.NodeRegistryAPI.DeRegisterNode:input_type -> nodeRegistryAPI.NodeID
+	8,  // 10: nodeRegistryAPI.NodeRegistryAPI.UpdateNode:input_type -> nodeRegistryAPI.UpdateNodeRequest
+	10, // 11: nodeRegistryAPI.NodeRegistryAPI.GetNode:input_type -> nodeRegistryAPI.NodeID
+	0,  // 12: nodeRegistryAPI.NodeRegistryAPI.ListNodes:input_type -> nodeRegistryAPI.None
+	7,  // 13: nodeRegistryAPI.NodeRegistryAPI.RegisterNode:output_type -> nodeRegistryAPI.RegisterNodeResponse
+	9,  // 14: nodeRegistryAPI.NodeRegistryAPI.DeRegisterNode:output_type -> nodeRegistryAPI.BoolResponse
+	9,  // 15: nodeRegistryAPI.NodeRegistryAPI.UpdateNode:output_type -> nodeRegistryAPI.BoolResponse
+	6,  // 16: nodeRegistryAPI.NodeRegistryAPI.GetNode:output_type -> nodeRegistryAPI.NodeInfo
+	11, // 17: nodeRegistryAPI.NodeRegistryAPI.ListNodes:output_type -> nodeRegistryAPI.ListNodesResponse
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_node_proto_init() }
@@ -955,7 +860,7 @@ func file_api_proto_node_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_node_proto_rawDesc), len(file_api_proto_node_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

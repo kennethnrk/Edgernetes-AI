@@ -44,20 +44,12 @@ type NodeMetadata struct {
 	Hostname     string `json:"hostname"`
 }
 
-type NetworkInfo struct {
-	Type      string `json:"type"`
-	Bandwidth int64  `json:"bandwidth_mbps"`
-	IsMetered bool   `json:"is_metered"`
-	Latency   int    `json:"latency_ms"`
-}
-
 type NodeInfo struct {
 	ID                   string               `json:"id"`
 	Name                 string               `json:"name"`
 	IP                   string               `json:"ip"`
 	Port                 int                  `json:"port"`
 	Metadata             NodeMetadata         `json:"metadata"`
-	NetworkInfo          NetworkInfo          `json:"network_info"`
 	ResourceCapabilities ResourceCapabilities `json:"resource_capabilities"`
 	Status               constants.Status     `json:"status"`
 	AssignedModels       []string             `json:"assigned_models"`
