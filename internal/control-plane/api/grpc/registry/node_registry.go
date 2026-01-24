@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	nodepb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/node"
 	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
@@ -149,7 +150,7 @@ func protoToStoreNodeInfo(pb *nodepb.NodeInfo) store.NodeInfo {
 				Total: rc.GetMemory().GetTotal(),
 				Free:  rc.GetMemory().GetFree(),
 				Used:  rc.GetMemory().GetUsed(),
-				Type:  store.MemoryType(rc.GetMemory().GetType()),
+				Type:  constants.MemoryType(rc.GetMemory().GetType()),
 			}
 		}
 
@@ -167,7 +168,7 @@ func protoToStoreNodeInfo(pb *nodepb.NodeInfo) store.NodeInfo {
 			info.ResourceCapabilities.ComputeDevices = make([]store.ComputeDevice, len(devices))
 			for i, d := range devices {
 				info.ResourceCapabilities.ComputeDevices[i] = store.ComputeDevice{
-					Type:         store.ComputeDeviceType(d.GetType()),
+					Type:         constants.ComputeDeviceType(d.GetType()),
 					Vendor:       d.GetVendor(),
 					Model:        d.GetModel(),
 					Memory:       d.GetMemory(),
@@ -213,7 +214,7 @@ func updateRequestToStoreNodeInfo(req *nodepb.UpdateNodeRequest, existing *store
 				Total: rc.GetMemory().GetTotal(),
 				Free:  rc.GetMemory().GetFree(),
 				Used:  rc.GetMemory().GetUsed(),
-				Type:  store.MemoryType(rc.GetMemory().GetType()),
+				Type:  constants.MemoryType(rc.GetMemory().GetType()),
 			}
 		}
 
@@ -231,7 +232,7 @@ func updateRequestToStoreNodeInfo(req *nodepb.UpdateNodeRequest, existing *store
 			info.ResourceCapabilities.ComputeDevices = make([]store.ComputeDevice, len(devices))
 			for i, d := range devices {
 				info.ResourceCapabilities.ComputeDevices[i] = store.ComputeDevice{
-					Type:         store.ComputeDeviceType(d.GetType()),
+					Type:         constants.ComputeDeviceType(d.GetType()),
 					Vendor:       d.GetVendor(),
 					Model:        d.GetModel(),
 					Memory:       d.GetMemory(),

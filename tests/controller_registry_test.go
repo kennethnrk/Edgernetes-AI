@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 )
@@ -96,7 +97,7 @@ func TestUpdateNodeStatus_NotFound(t *testing.T) {
 	s := newTestStore(t)
 	defer s.Close()
 
-	err := registrycontroller.UpdateNodeStatus(s, "missing-node", store.StatusOnline)
+	err := registrycontroller.UpdateNodeStatus(s, "missing-node", constants.StatusOnline)
 	if err == nil {
 		t.Fatalf("UpdateNodeStatus() error = nil, want non-nil for missing node")
 	}
@@ -109,7 +110,7 @@ func TestUpdateNodeStatus_Success(t *testing.T) {
 	nodeID := "node-1"
 	initial := store.NodeInfo{
 		Name:   "status-node",
-		Status: store.StatusOffline,
+		Status: constants.StatusOffline,
 	}
 	if err := registrycontroller.RegisterNode(s, nodeID, initial); err != nil {
 		t.Fatalf("RegisterNode() error = %v", err)
@@ -122,7 +123,7 @@ func TestUpdateNodeStatus_Success(t *testing.T) {
 
 	time.Sleep(10 * time.Millisecond)
 
-	if err := registrycontroller.UpdateNodeStatus(s, nodeID, store.StatusOnline); err != nil {
+	if err := registrycontroller.UpdateNodeStatus(s, nodeID, constants.StatusOnline); err != nil {
 		t.Fatalf("UpdateNodeStatus() error = %v", err)
 	}
 
@@ -131,8 +132,8 @@ func TestUpdateNodeStatus_Success(t *testing.T) {
 		t.Fatalf("GetNodeByID() after status update error = %v, found = %v", err, found)
 	}
 
-	if after.Status != store.StatusOnline {
-		t.Fatalf("Status = %q, want %q", after.Status, store.StatusOnline)
+	if after.Status != constants.StatusOnline {
+		t.Fatalf("Status = %q, want %q", after.Status, constants.StatusOnline)
 	}
 	if !after.UpdatedAt.After(before.UpdatedAt) {
 		t.Fatalf("UpdatedAt not advanced; got %v, before %v", after.UpdatedAt, before.UpdatedAt)
@@ -190,7 +191,7 @@ func TestRegisterAndGetModel(t *testing.T) {
 		Name:      "test-model",
 		Version:   "v1",
 		FilePath:  "/models/test-model",
-		ModelType: store.ModelTypeCNN,
+		ModelType: constants.ModelTypeCNN,
 		ModelSize: 1024,
 		Replicas:  2,
 	}
@@ -246,7 +247,7 @@ func TestUpdateModelInfo(t *testing.T) {
 		Name:      "updated-model",
 		Version:   "v2",
 		FilePath:  "/models/updated-model",
-		ModelType: store.ModelTypeLinear,
+		ModelType: constants.ModelTypeLinear,
 		ModelSize: 2048,
 		Replicas:  3,
 	}

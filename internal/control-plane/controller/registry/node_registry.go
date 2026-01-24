@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 )
 
@@ -84,7 +85,7 @@ func UpdateNodeInfo(s *store.Store, nodeID string, info store.NodeInfo) error {
 }
 
 // UpdateNodeStatus updates only the Status (and related timestamps) of a node.
-func UpdateNodeStatus(s *store.Store, nodeID string, status store.Status) error {
+func UpdateNodeStatus(s *store.Store, nodeID string, status constants.Status) error {
 	if nodeID == "" {
 		return errors.New("nodeID cannot be empty")
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	modelpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/model"
 	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
@@ -111,7 +112,7 @@ func protoToStoreModelInfo(pb *modelpb.ModelInfo) store.ModelInfo {
 		Name:      pb.GetName(),
 		Version:   pb.GetVersion(),
 		FilePath:  pb.GetFilePath(),
-		ModelType: store.ModelType(pb.GetModelType()),
+		ModelType: constants.ModelType(pb.GetModelType()),
 		ModelSize: pb.GetModelSize(),
 		Replicas:  int(pb.GetReplicas()),
 	}
@@ -131,7 +132,7 @@ func updateRequestToStoreModelInfo(req *modelpb.UpdateModelRequest) store.ModelI
 		Name:      req.GetName(),
 		Version:   req.GetVersion(),
 		FilePath:  req.GetFilePath(),
-		ModelType: store.ModelType(req.GetModelType()),
+		ModelType: constants.ModelType(req.GetModelType()),
 		ModelSize: req.GetModelSize(),
 		Replicas:  int(req.GetReplicas()),
 	}
