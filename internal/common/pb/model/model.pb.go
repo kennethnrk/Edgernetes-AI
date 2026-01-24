@@ -429,7 +429,7 @@ const file_api_proto_model_proto_rawDesc = "" +
 	"\vUpdateModel\x12$.modelRegistryAPI.UpdateModelRequest\x1a\x1e.modelRegistryAPI.BoolResponse\x12B\n" +
 	"\bGetModel\x12\x19.modelRegistryAPI.ModelID\x1a\x1b.modelRegistryAPI.ModelInfo\x12J\n" +
 	"\n" +
-	"ListModels\x12\x16.modelRegistryAPI.None\x1a$.modelRegistryAPI.ListModelsResponseB2Z0internal/control-plane/api/grpc/pb/model;modelpbb\x06proto3"
+	"ListModels\x12\x16.modelRegistryAPI.None\x1a$.modelRegistryAPI.ListModelsResponseB\"Z internal/common/pb/model;modelpbb\x06proto3"
 
 var (
 	file_api_proto_model_proto_rawDescOnce sync.Once

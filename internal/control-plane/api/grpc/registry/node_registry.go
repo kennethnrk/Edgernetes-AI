@@ -126,7 +126,6 @@ func protoToStoreNodeInfo(pb *nodepb.NodeInfo) store.NodeInfo {
 	if pb.GetMetadata() != nil {
 		info.Metadata = store.NodeMetadata{
 			OSType:       pb.GetMetadata().GetOsType(),
-			OSVersion:    pb.GetMetadata().GetOsVersion(),
 			AgentVersion: pb.GetMetadata().GetAgentVersion(),
 			Hostname:     pb.GetMetadata().GetHostname(),
 		}
@@ -191,7 +190,6 @@ func updateRequestToStoreNodeInfo(req *nodepb.UpdateNodeRequest, existing *store
 	if req.GetMetadata() != nil {
 		info.Metadata = store.NodeMetadata{
 			OSType:       req.GetMetadata().GetOsType(),
-			OSVersion:    req.GetMetadata().GetOsVersion(),
 			AgentVersion: req.GetMetadata().GetAgentVersion(),
 			Hostname:     req.GetMetadata().GetHostname(),
 		}
@@ -260,7 +258,6 @@ func storeNodeInfoToProto(info *store.NodeInfo) *nodepb.NodeInfo {
 	// Convert Metadata
 	pb.Metadata = &nodepb.NodeMetadata{
 		OsType:       info.Metadata.OSType,
-		OsVersion:    info.Metadata.OSVersion,
 		AgentVersion: info.Metadata.AgentVersion,
 		Hostname:     info.Metadata.Hostname,
 	}

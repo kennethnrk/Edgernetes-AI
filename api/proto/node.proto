@@ -54,9 +54,8 @@ message NetworkInfo {
 
 message NodeMetadata {
     string os_type = 1;
-    string os_version = 2;
-    string agent_version = 3;
-    string hostname = 4;
+    string agent_version = 2;
+    string hostname = 3;
 }
 
 message NodeInfo {

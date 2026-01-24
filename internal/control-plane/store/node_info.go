@@ -40,7 +40,6 @@ type ComputeDevice struct {
 
 type NodeMetadata struct {
 	OSType       string `json:"os_type"`
-	OSVersion    string `json:"os_version"`
 	AgentVersion string `json:"agent_version"`
 	Hostname     string `json:"hostname"`
 }
