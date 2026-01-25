@@ -4,6 +4,10 @@ type MemoryType string
 
 const (
 	MemoryTypeUnknown MemoryType = "unknown"
+	MemoryTypeDDR3    MemoryType = "ddr3"
+	MemoryTypeDDR4    MemoryType = "ddr4"
+	MemoryTypeDDR5    MemoryType = "ddr5"
+	MemoryTypeLPDDR3  MemoryType = "lpddr3"
 	MemoryTypeLPDDR4  MemoryType = "lpddr4"
 	MemoryTypeLPDDR4X MemoryType = "lpddr4x"
 	MemoryTypeLPDDR5  MemoryType = "lpddr5"

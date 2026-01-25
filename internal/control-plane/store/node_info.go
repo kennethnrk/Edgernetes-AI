@@ -20,11 +20,9 @@ type MemoryInfo struct {
 }
 
 type StorageInfo struct {
-	Total      int64 `json:"total"`
-	Free       int64 `json:"free"`
-	Used       int64 `json:"used"`
-	ReadSpeed  int64 `json:"read_speed"`
-	WriteSpeed int64 `json:"write_speed"`
+	Total int64 `json:"total"`
+	Free  int64 `json:"free"`
+	Used  int64 `json:"used"`
 }
 
 type ComputeDevice struct {

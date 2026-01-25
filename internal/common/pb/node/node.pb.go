@@ -130,8 +130,6 @@ type StorageInfo struct {
 	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Free          int64                  `protobuf:"varint,2,opt,name=free,proto3" json:"free,omitempty"`
 	Used          int64                  `protobuf:"varint,3,opt,name=used,proto3" json:"used,omitempty"`
-	ReadSpeed     int64                  `protobuf:"varint,4,opt,name=read_speed,json=readSpeed,proto3" json:"read_speed,omitempty"`
-	WriteSpeed    int64                  `protobuf:"varint,5,opt,name=write_speed,json=writeSpeed,proto3" json:"write_speed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -183,20 +181,6 @@ func (x *StorageInfo) GetFree() int64 {
 func (x *StorageInfo) GetUsed() int64 {
 	if x != nil {
 		return x.Used
-	}
-	return 0
-}
-
-func (x *StorageInfo) GetReadSpeed() int64 {
-	if x != nil {
-		return x.ReadSpeed
-	}
-	return 0
-}
-
-func (x *StorageInfo) GetWriteSpeed() int64 {
-	if x != nil {
-		return x.WriteSpeed
 	}
 	return 0
 }
@@ -744,15 +728,11 @@ const file_api_proto_node_proto_rawDesc = "" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x12\n" +
 	"\x04free\x18\x02 \x01(\x03R\x04free\x12\x12\n" +
 	"\x04used\x18\x03 \x01(\x03R\x04used\x12\x12\n" +
-	"\x04type\x18\x04 \x01(\tR\x04type\"\x8b\x01\n" +
+	"\x04type\x18\x04 \x01(\tR\x04type\"K\n" +
 	"\vStorageInfo\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x12\n" +
 	"\x04free\x18\x02 \x01(\x03R\x04free\x12\x12\n" +
-	"\x04used\x18\x03 \x01(\x03R\x04used\x12\x1d\n" +
-	"\n" +
-	"read_speed\x18\x04 \x01(\x03R\treadSpeed\x12\x1f\n" +
-	"\vwrite_speed\x18\x05 \x01(\x03R\n" +
-	"writeSpeed\"\xcc\x01\n" +
+	"\x04used\x18\x03 \x01(\x03R\x04used\"\xcc\x01\n" +
 	"\rComputeDevice\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x16\n" +
 	"\x06vendor\x18\x02 \x01(\tR\x06vendor\x12\x14\n" +

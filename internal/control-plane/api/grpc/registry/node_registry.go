@@ -146,11 +146,9 @@ func protoToStoreNodeInfo(pb *nodepb.NodeInfo) store.NodeInfo {
 
 		if rc.GetStorage() != nil {
 			info.ResourceCapabilities.Storage = store.StorageInfo{
-				Total:      rc.GetStorage().GetTotal(),
-				Free:       rc.GetStorage().GetFree(),
-				Used:       rc.GetStorage().GetUsed(),
-				ReadSpeed:  rc.GetStorage().GetReadSpeed(),
-				WriteSpeed: rc.GetStorage().GetWriteSpeed(),
+				Total: rc.GetStorage().GetTotal(),
+				Free:  rc.GetStorage().GetFree(),
+				Used:  rc.GetStorage().GetUsed(),
 			}
 		}
 
@@ -200,11 +198,9 @@ func updateRequestToStoreNodeInfo(req *nodepb.UpdateNodeRequest, existing *store
 
 		if rc.GetStorage() != nil {
 			info.ResourceCapabilities.Storage = store.StorageInfo{
-				Total:      rc.GetStorage().GetTotal(),
-				Free:       rc.GetStorage().GetFree(),
-				Used:       rc.GetStorage().GetUsed(),
-				ReadSpeed:  rc.GetStorage().GetReadSpeed(),
-				WriteSpeed: rc.GetStorage().GetWriteSpeed(),
+				Total: rc.GetStorage().GetTotal(),
+				Free:  rc.GetStorage().GetFree(),
+				Used:  rc.GetStorage().GetUsed(),
 			}
 		}
 
@@ -257,11 +253,9 @@ func storeNodeInfoToProto(info *store.NodeInfo) *nodepb.NodeInfo {
 
 	// Convert Storage
 	pb.ResourceCapabilities.Storage = &nodepb.StorageInfo{
-		Total:      info.ResourceCapabilities.Storage.Total,
-		Free:       info.ResourceCapabilities.Storage.Free,
-		Used:       info.ResourceCapabilities.Storage.Used,
-		ReadSpeed:  info.ResourceCapabilities.Storage.ReadSpeed,
-		WriteSpeed: info.ResourceCapabilities.Storage.WriteSpeed,
+		Total: info.ResourceCapabilities.Storage.Total,
+		Free:  info.ResourceCapabilities.Storage.Free,
+		Used:  info.ResourceCapabilities.Storage.Used,
 	}
 
 	// Convert ComputeDevices
