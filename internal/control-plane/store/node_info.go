@@ -50,7 +50,7 @@ type NodeInfo struct {
 	Metadata             NodeMetadata         `json:"metadata"`
 	ResourceCapabilities ResourceCapabilities `json:"resource_capabilities"`
 	Status               constants.Status     `json:"status"`
-	AssignedModels       []string             `json:"assigned_models"`
+	AssignedModels       []string             `json:"assigned_models"` // This is the list of model Replica IDs NOT the model IDs
 	RegisteredAt         time.Time            `json:"registered_at"`
 	UpdatedAt            time.Time            `json:"updated_at"`
 	LastHeartbeat        time.Time            `json:"last_heartbeat"`
