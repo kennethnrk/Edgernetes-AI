@@ -21,24 +21,27 @@ import (
 )
 
 type ModelReplicaDetails struct {
-	ID        string
-	Name      string
-	Version   string
-	FilePath  string
-	ModelType constants.ModelType
-	ModelSize int64
-	Status    constants.ModelReplicaStatus
-	LogFile   string
+	ID           string                       `json:"id"`       // This is the replica ID
+	ModelID      string                       `json:"model_id"` // This is the model ID
+	Name         string                       `json:"name"`
+	Version      string                       `json:"version"`
+	FilePath     string                       `json:"file_path"`
+	ModelType    constants.ModelType          `json:"model_type"`
+	ModelSize    int64                        `json:"model_size"`
+	Status       constants.ModelReplicaStatus `json:"status"`
+	ErrorCode    int                          `json:"error_code"`
+	ErrorMessage string                       `json:"error_message"`
+	LogFile      string                       `json:"log_file"`
 }
 
 type Agent struct {
-	ID                   string
-	Name                 string
-	IP                   string
-	Port                 int
-	Metadata             store.NodeMetadata
-	ResourceCapabilities store.ResourceCapabilities
-	AssignedModels       []ModelReplicaDetails
+	ID                   string                     `json:"id"`
+	Name                 string                     `json:"name"`
+	IP                   string                     `json:"ip"`
+	Port                 int                        `json:"port"`
+	Metadata             store.NodeMetadata         `json:"metadata"`
+	ResourceCapabilities store.ResourceCapabilities `json:"resource_capabilities"`
+	AssignedModels       []ModelReplicaDetails      `json:"assigned_models"`
 }
 
 func (a *Agent) AssignModel(model ModelReplicaDetails) error {

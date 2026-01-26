@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/agent"
 	grpcagent "github.com/kennethnrk/edgernetes-ai/internal/agent/api/grpc"
@@ -25,4 +26,14 @@ func main() {
 	}
 
 	log.Printf("Agent registered successfully with node ID: %s", agentInfo.ID)
+
+	// Start heartbeat gRPC server
+	serverAddr := os.Getenv("AGENT_GRPC_ADDR")
+	if serverAddr == "" {
+		serverAddr = ":50052"
+	}
+	log.Printf("Starting agent gRPC server on %s", serverAddr)
+	if err := grpcagent.StartGRPCServer(agentInfo, serverAddr); err != nil {
+		log.Fatalf("Failed to start agent gRPC server: %v", err)
+	}
 }
