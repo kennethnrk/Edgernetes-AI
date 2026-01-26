@@ -5,8 +5,11 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	grpcregistry "github.com/kennethnrk/edgernetes-ai/internal/control-plane/api/grpc/registry"
+	heartbeatcontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/heartbeat"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 	"google.golang.org/grpc"
 )
@@ -36,6 +39,20 @@ func main() {
 
 	s := grpc.NewServer()
 	grpcregistry.RegisterServices(s, store)
+
+	intervalSeconds := 10
+
+	if envInterval := os.Getenv("HEARTBEAT_INTERVAL_SECONDS"); envInterval != "" {
+		if parsed, err := strconv.Atoi(envInterval); err == nil && parsed > 0 {
+			intervalSeconds = parsed
+		} else {
+			log.Printf("Invalid HEARTBEAT_INTERVAL_SECONDS value '%s', using default 10 seconds", envInterval)
+		}
+	}
+	interval := time.Duration(intervalSeconds) * time.Second
+
+	// Start heartbeat handler in a separate goroutine
+	go heartbeatcontroller.StartHeartbeatHandler(store, interval)
 
 	log.Printf("control-plane gRPC server listening on %s", addr)
 	if err := s.Serve(lis); err != nil {
