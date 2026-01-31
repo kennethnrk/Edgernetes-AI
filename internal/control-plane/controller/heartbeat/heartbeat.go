@@ -14,14 +14,20 @@ import (
 
 func HandleHeartbeat(s *store.Store) error {
 	log.Println("Heartbeat controller started")
-	nodes, err := registrycontroller.ListNodes(s)
+	nodes, err := registrycontroller.ListNodesByStatuses(s, []constants.Status{constants.StatusOnline, constants.StatusUnknown})
 	if err != nil {
 		return err
 	}
 	for _, node := range nodes {
 		resp, err := heartbeatcaller.CallHeartbeat(node)
 		if err != nil {
-			log.Printf("Failed to call heartbeat for node %s: %v", node.ID, err)
+			log.Printf("Failed to call heartbeat for node %s", node.ID)
+			if node.LastHeartbeat.Add(40 * time.Second).Before(time.Now()) {
+				log.Printf("Node %s has not sent heartbeat in 40 seconds, setting status to offline", node.ID)
+				registrycontroller.UpdateNodeStatus(s, node.ID, constants.StatusOffline)
+			} else {
+				registrycontroller.UpdateNodeStatus(s, node.ID, constants.StatusUnknown)
+			}
 			continue
 		}
 		log.Printf("Heartbeat response for node %s", node.ID)

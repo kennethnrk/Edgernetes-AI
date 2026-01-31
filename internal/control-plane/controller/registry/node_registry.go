@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
@@ -162,6 +163,21 @@ func ListNodes(s *store.Store) ([]store.NodeInfo, error) {
 	}
 
 	return nodes, nil
+}
+
+// ListNodesByStatuses returns all NodeInfo records currently in the store with the given statuses.
+func ListNodesByStatuses(s *store.Store, statuses []constants.Status) ([]store.NodeInfo, error) {
+	nodes, err := ListNodes(s)
+	if err != nil {
+		return nil, err
+	}
+	nodesByStatus := make([]store.NodeInfo, 0, len(nodes))
+	for _, node := range nodes {
+		if slices.Contains(statuses, node.Status) {
+			nodesByStatus = append(nodesByStatus, node)
+		}
+	}
+	return nodesByStatus, nil
 }
 
 // getNodeRaw is a small helper to fetch the raw JSON for a node.

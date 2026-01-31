@@ -132,7 +132,7 @@ func GetAgentInfo(nodeName *string) *Agent {
 		ID:   "",
 		Name: finalNodeName,
 		IP:   ipAddress,
-		Port: 50051,
+		Port: 50052, // default agent heartbeat port (overridden in main from AGENT_GRPC_ADDR)
 		Metadata: store.NodeMetadata{
 			OSType:       runtime.GOOS,
 			AgentVersion: "1.0.0",
