@@ -30,6 +30,8 @@ type DeployModelRequest struct {
 	ModelType     string                 `protobuf:"bytes,5,opt,name=model_type,json=modelType,proto3" json:"model_type,omitempty"`
 	ModelSize     int64                  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
 	InstanceCount int32                  `protobuf:"varint,7,opt,name=instance_count,json=instanceCount,proto3" json:"instance_count,omitempty"`
+	DownloadUrl   string                 `protobuf:"bytes,8,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
+	Sha256Hash    string                 `protobuf:"bytes,9,opt,name=sha256_hash,json=sha256Hash,proto3" json:"sha256_hash,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -113,6 +115,20 @@ func (x *DeployModelRequest) GetInstanceCount() int32 {
 	return 0
 }
 
+func (x *DeployModelRequest) GetDownloadUrl() string {
+	if x != nil {
+		return x.DownloadUrl
+	}
+	return ""
+}
+
+func (x *DeployModelRequest) GetSha256Hash() string {
+	if x != nil {
+		return x.Sha256Hash
+	}
+	return ""
+}
+
 type DeployModelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -165,11 +181,115 @@ func (x *DeployModelResponse) GetMessage() string {
 	return ""
 }
 
+type ModelDownloadRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ModelId          string                 `protobuf:"bytes,1,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	ResumeByteOffset int64                  `protobuf:"varint,2,opt,name=resume_byte_offset,json=resumeByteOffset,proto3" json:"resume_byte_offset,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ModelDownloadRequest) Reset() {
+	*x = ModelDownloadRequest{}
+	mi := &file_api_proto_deploy_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelDownloadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelDownloadRequest) ProtoMessage() {}
+
+func (x *ModelDownloadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_deploy_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelDownloadRequest.ProtoReflect.Descriptor instead.
+func (*ModelDownloadRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_deploy_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ModelDownloadRequest) GetModelId() string {
+	if x != nil {
+		return x.ModelId
+	}
+	return ""
+}
+
+func (x *ModelDownloadRequest) GetResumeByteOffset() int64 {
+	if x != nil {
+		return x.ResumeByteOffset
+	}
+	return 0
+}
+
+type ModelChunk struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ChunkData     []byte                 `protobuf:"bytes,1,opt,name=chunk_data,json=chunkData,proto3" json:"chunk_data,omitempty"`
+	ChunkOffset   int64                  `protobuf:"varint,2,opt,name=chunk_offset,json=chunkOffset,proto3" json:"chunk_offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelChunk) Reset() {
+	*x = ModelChunk{}
+	mi := &file_api_proto_deploy_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelChunk) ProtoMessage() {}
+
+func (x *ModelChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_deploy_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelChunk.ProtoReflect.Descriptor instead.
+func (*ModelChunk) Descriptor() ([]byte, []int) {
+	return file_api_proto_deploy_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ModelChunk) GetChunkData() []byte {
+	if x != nil {
+		return x.ChunkData
+	}
+	return nil
+}
+
+func (x *ModelChunk) GetChunkOffset() int64 {
+	if x != nil {
+		return x.ChunkOffset
+	}
+	return 0
+}
+
 var File_api_proto_deploy_proto protoreflect.FileDescriptor
 
 const file_api_proto_deploy_proto_rawDesc = "" +
 	"\n" +
-	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\xdf\x01\n" +
+	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\xa3\x02\n" +
 	"\x12DeployModelRequest\x12\x19\n" +
 	"\bmodel_id\x18\x01 \x01(\tR\amodelId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -179,12 +299,25 @@ const file_api_proto_deploy_proto_rawDesc = "" +
 	"model_type\x18\x05 \x01(\tR\tmodelType\x12\x1d\n" +
 	"\n" +
 	"model_size\x18\x06 \x01(\x03R\tmodelSize\x12%\n" +
-	"\x0einstance_count\x18\a \x01(\x05R\rinstanceCount\"I\n" +
+	"\x0einstance_count\x18\a \x01(\x05R\rinstanceCount\x12!\n" +
+	"\fdownload_url\x18\b \x01(\tR\vdownloadUrl\x12\x1f\n" +
+	"\vsha256_hash\x18\t \x01(\tR\n" +
+	"sha256Hash\"I\n" +
 	"\x13DeployModelResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2Y\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"_\n" +
+	"\x14ModelDownloadRequest\x12\x19\n" +
+	"\bmodel_id\x18\x01 \x01(\tR\amodelId\x12,\n" +
+	"\x12resume_byte_offset\x18\x02 \x01(\x03R\x10resumeByteOffset\"N\n" +
+	"\n" +
+	"ModelChunk\x12\x1d\n" +
+	"\n" +
+	"chunk_data\x18\x01 \x01(\fR\tchunkData\x12!\n" +
+	"\fchunk_offset\x18\x02 \x01(\x03R\vchunkOffset2Y\n" +
 	"\tDeployAPI\x12L\n" +
-	"\vDeployModel\x12\x1d.deployAPI.DeployModelRequest\x1a\x1e.deployAPI.DeployModelResponseB$Z\"internal/common/pb/deploy;deploypbb\x06proto3"
+	"\vDeployModel\x12\x1d.deployAPI.DeployModelRequest\x1a\x1e.deployAPI.DeployModelResponse2a\n" +
+	"\x14ModelTransferService\x12I\n" +
+	"\rDownloadModel\x12\x1f.deployAPI.ModelDownloadRequest\x1a\x15.deployAPI.ModelChunk0\x01B$Z\"internal/common/pb/deploy;deploypbb\x06proto3"
 
 var (
 	file_api_proto_deploy_proto_rawDescOnce sync.Once
@@ -198,16 +331,20 @@ func file_api_proto_deploy_proto_rawDescGZIP() []byte {
 	return file_api_proto_deploy_proto_rawDescData
 }
 
-var file_api_proto_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_proto_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_api_proto_deploy_proto_goTypes = []any{
-	(*DeployModelRequest)(nil),  // 0: deployAPI.DeployModelRequest
-	(*DeployModelResponse)(nil), // 1: deployAPI.DeployModelResponse
+	(*DeployModelRequest)(nil),   // 0: deployAPI.DeployModelRequest
+	(*DeployModelResponse)(nil),  // 1: deployAPI.DeployModelResponse
+	(*ModelDownloadRequest)(nil), // 2: deployAPI.ModelDownloadRequest
+	(*ModelChunk)(nil),           // 3: deployAPI.ModelChunk
 }
 var file_api_proto_deploy_proto_depIdxs = []int32{
 	0, // 0: deployAPI.DeployAPI.DeployModel:input_type -> deployAPI.DeployModelRequest
-	1, // 1: deployAPI.DeployAPI.DeployModel:output_type -> deployAPI.DeployModelResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: deployAPI.ModelTransferService.DownloadModel:input_type -> deployAPI.ModelDownloadRequest
+	1, // 2: deployAPI.DeployAPI.DeployModel:output_type -> deployAPI.DeployModelResponse
+	3, // 3: deployAPI.ModelTransferService.DownloadModel:output_type -> deployAPI.ModelChunk
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -224,9 +361,9 @@ func file_api_proto_deploy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_deploy_proto_rawDesc), len(file_api_proto_deploy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_api_proto_deploy_proto_goTypes,
 		DependencyIndexes: file_api_proto_deploy_proto_depIdxs,

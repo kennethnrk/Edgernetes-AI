@@ -1,6 +1,7 @@
 package grpcregistry
 
 import (
+	deploypb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/deploy"
 	modelpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/model"
 	nodepb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/node"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
@@ -16,4 +17,8 @@ func RegisterServices(s *grpc.Server, store *store.Store) {
 	// Register Node Registry API
 	nodeSrv := NewNodeRegistryServer(store)
 	nodepb.RegisterNodeRegistryAPIServer(s, nodeSrv)
+
+	// Register Model Transfer Service (gRPC streaming fallback for model file delivery)
+	transferSrv := NewModelTransferServer(store)
+	deploypb.RegisterModelTransferServiceServer(s, transferSrv)
 }
