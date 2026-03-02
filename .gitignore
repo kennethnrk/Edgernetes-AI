@@ -1,2 +1,3 @@
 Blueprint.md
 *.wal
+/cmd/agent/onnxtest/*
