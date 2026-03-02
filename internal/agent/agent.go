@@ -21,17 +21,18 @@ import (
 )
 
 type ModelReplicaDetails struct {
-	ID           string                       `json:"id"`       // This is the replica ID
-	ModelID      string                       `json:"model_id"` // This is the model ID
-	Name         string                       `json:"name"`
-	Version      string                       `json:"version"`
-	FilePath     string                       `json:"file_path"`
-	ModelType    constants.ModelType          `json:"model_type"`
-	ModelSize    int64                        `json:"model_size"`
-	Status       constants.ModelReplicaStatus `json:"status"`
-	ErrorCode    int                          `json:"error_code"`
-	ErrorMessage string                       `json:"error_message"`
-	LogFile      string                       `json:"log_file"`
+	ID            string                       `json:"id"`       // This is the replica ID
+	ModelID       string                       `json:"model_id"` // This is the model ID
+	Name          string                       `json:"name"`
+	Version       string                       `json:"version"`
+	FilePath      string                       `json:"file_path"`
+	ModelType     constants.ModelType          `json:"model_type"`
+	ModelSize     int64                        `json:"model_size"`
+	Status        constants.ModelReplicaStatus `json:"status"`
+	ErrorCode     int                          `json:"error_code"`
+	ErrorMessage  string                       `json:"error_message"`
+	LogFile       string                       `json:"log_file"`
+	InstanceCount int                          `json:"instance_count"`
 }
 
 type Agent struct {

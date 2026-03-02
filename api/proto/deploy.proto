@@ -15,6 +15,7 @@ message DeployModelRequest {
     string file_path = 4;
     string model_type = 5;
     int64 model_size = 6;
+    int32 instance_count = 7;
 }
 
 message DeployModelResponse {

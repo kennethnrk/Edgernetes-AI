@@ -29,6 +29,7 @@ type DeployModelRequest struct {
 	FilePath      string                 `protobuf:"bytes,4,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
 	ModelType     string                 `protobuf:"bytes,5,opt,name=model_type,json=modelType,proto3" json:"model_type,omitempty"`
 	ModelSize     int64                  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
+	InstanceCount int32                  `protobuf:"varint,7,opt,name=instance_count,json=instanceCount,proto3" json:"instance_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -105,6 +106,13 @@ func (x *DeployModelRequest) GetModelSize() int64 {
 	return 0
 }
 
+func (x *DeployModelRequest) GetInstanceCount() int32 {
+	if x != nil {
+		return x.InstanceCount
+	}
+	return 0
+}
+
 type DeployModelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -161,7 +169,7 @@ var File_api_proto_deploy_proto protoreflect.FileDescriptor
 
 const file_api_proto_deploy_proto_rawDesc = "" +
 	"\n" +
-	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\xb8\x01\n" +
+	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\xdf\x01\n" +
 	"\x12DeployModelRequest\x12\x19\n" +
 	"\bmodel_id\x18\x01 \x01(\tR\amodelId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -170,7 +178,8 @@ const file_api_proto_deploy_proto_rawDesc = "" +
 	"\n" +
 	"model_type\x18\x05 \x01(\tR\tmodelType\x12\x1d\n" +
 	"\n" +
-	"model_size\x18\x06 \x01(\x03R\tmodelSize\"I\n" +
+	"model_size\x18\x06 \x01(\x03R\tmodelSize\x12%\n" +
+	"\x0einstance_count\x18\a \x01(\x05R\rinstanceCount\"I\n" +
 	"\x13DeployModelResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage2Y\n" +

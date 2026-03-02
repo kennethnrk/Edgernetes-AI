@@ -35,17 +35,18 @@ func (s *deployServer) DeployModel(ctx context.Context, req *deploypb.DeployMode
 
 	// Construct ModelReplicaDetails from request
 	replicaDetails := agent.ModelReplicaDetails{
-		ID:           replicaID,
-		ModelID:      req.ModelId,
-		Name:         req.Name,
-		Version:      req.Version,
-		FilePath:     req.FilePath,
-		ModelType:    constants.ModelType(req.ModelType),
-		ModelSize:    req.ModelSize,
-		Status:       constants.ModelReplicaStatusPending,
-		ErrorCode:    0,
-		ErrorMessage: "",
-		LogFile:      "",
+		ID:            replicaID,
+		ModelID:       req.ModelId,
+		Name:          req.Name,
+		Version:       req.Version,
+		FilePath:      req.FilePath,
+		ModelType:     constants.ModelType(req.ModelType),
+		ModelSize:     req.ModelSize,
+		Status:        constants.ModelReplicaStatusPending,
+		ErrorCode:     0,
+		ErrorMessage:  "",
+		LogFile:       "",
+		InstanceCount: int(req.InstanceCount),
 	}
 
 	// Assign model to agent

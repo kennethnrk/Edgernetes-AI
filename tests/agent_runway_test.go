@@ -41,30 +41,43 @@ func TestModelInference(t *testing.T) {
 	defer runway.CloseRuntime()
 
 	modelPath := filepath.Join("tests", "test_assets", "mlp_price_predictor_1.onnx")
+	replicaID := "test-replica-777"
+
+	// Start the background worker explicitly configured for 2 instances
+	err := runway.StartModelWorkers(replicaID, modelPath, 2)
+	if err != nil {
+		t.Fatalf("Failed to start model workers: %v", err)
+	}
+	defer runway.StopModelWorkers(replicaID)
 
 	rawFeatures := []float32{
-		6000, // area
-		3,    // bedrooms
-		2,    // bathrooms
-		2,    // stories
-		1,    // mainroad (yes=1)
-		0,    // guestroom (no=0)
-		1,    // basement (yes=1)
-		0,    // hotwaterheating (no=0)
-		1,    // airconditioning (yes=1)
-		2,    // parking
-		1,    // prefarea (yes=1)
-		2,    // furnishingstatus (furnished=2)
+		6000, 3, 2, 2, 1, 0, 1, 0, 1, 2, 1, 2,
 	}
 
-	price, err := runway.ModelInference(modelPath, rawFeatures, true)
-	if err != nil {
-		t.Fatalf("ModelInference failed: %v", err)
+	// Run 10 inferences concurrently to ensure thread safety
+	errCh := make(chan error, 10)
+	priceCh := make(chan float32, 10)
+
+	for i := 0; i < 10; i++ {
+		go func() {
+			price, err := runway.ModelInference(replicaID, rawFeatures, true)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			priceCh <- price
+		}()
 	}
 
-	if math.IsNaN(float64(price)) {
-		t.Fatalf("Predicted price is NaN")
+	for i := 0; i < 10; i++ {
+		select {
+		case err := <-errCh:
+			t.Fatalf("ModelInference failed concurrently: %v", err)
+		case price := <-priceCh:
+			if math.IsNaN(float64(price)) {
+				t.Fatalf("Predicted price is NaN")
+			}
+			t.Logf("Predicted price: %.2f", price)
+		}
 	}
-
-	t.Logf("Predicted price: %.2f", price)
 }

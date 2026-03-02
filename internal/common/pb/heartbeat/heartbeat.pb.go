@@ -77,6 +77,7 @@ type ModelReplicaDetails struct {
 	Status        string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
 	ErrorCode     int32                  `protobuf:"varint,9,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
 	ErrorMessage  string                 `protobuf:"bytes,10,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	InstanceCount int32                  `protobuf:"varint,11,opt,name=instance_count,json=instanceCount,proto3" json:"instance_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -181,6 +182,13 @@ func (x *ModelReplicaDetails) GetErrorMessage() string {
 	return ""
 }
 
+func (x *ModelReplicaDetails) GetInstanceCount() int32 {
+	if x != nil {
+		return x.InstanceCount
+	}
+	return 0
+}
+
 type RequestHeartbeatResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NodeID        string                 `protobuf:"bytes,1,opt,name=nodeID,proto3" json:"nodeID,omitempty"`
@@ -247,7 +255,7 @@ const file_api_proto_heartbeat_proto_rawDesc = "" +
 	"\n" +
 	"\x19api/proto/heartbeat.proto\x12\fheartbeatAPI\"1\n" +
 	"\x17RequestHeartbeatRequest\x12\x16\n" +
-	"\x06nodeID\x18\x01 \x01(\tR\x06nodeID\"\xb4\x02\n" +
+	"\x06nodeID\x18\x01 \x01(\tR\x06nodeID\"\xdb\x02\n" +
 	"\x13ModelReplicaDetails\x12\x1d\n" +
 	"\n" +
 	"replica_id\x18\x01 \x01(\tR\treplicaId\x12\x19\n" +
@@ -263,7 +271,8 @@ const file_api_proto_heartbeat_proto_rawDesc = "" +
 	"\n" +
 	"error_code\x18\t \x01(\x05R\terrorCode\x12#\n" +
 	"\rerror_message\x18\n" +
-	" \x01(\tR\ferrorMessage\"\x95\x01\n" +
+	" \x01(\tR\ferrorMessage\x12%\n" +
+	"\x0einstance_count\x18\v \x01(\x05R\rinstanceCount\"\x95\x01\n" +
 	"\x18RequestHeartbeatResponse\x12\x16\n" +
 	"\x06nodeID\x18\x01 \x01(\tR\x06nodeID\x12G\n" +
 	"\rModelReplicas\x18\x02 \x03(\v2!.heartbeatAPI.ModelReplicaDetailsR\rModelReplicas\x12\x18\n" +

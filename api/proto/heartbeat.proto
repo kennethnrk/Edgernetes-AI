@@ -23,6 +23,7 @@ message ModelReplicaDetails {
     string status = 8;
     int32 error_code = 9;
     string error_message = 10;
+    int32 instance_count = 11;
 }
 
 message RequestHeartbeatResponse{

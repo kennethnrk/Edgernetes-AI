@@ -51,15 +51,16 @@ func (s *heartbeatServer) RequestHeartbeat(ctx context.Context, req *heartbeatpb
 // ModelReplicaToProto converts agent.ModelReplicaDetails to heartbeatpb.ModelReplicaDetails.
 func ModelReplicaToProto(m *agent.ModelReplicaDetails) *heartbeatpb.ModelReplicaDetails {
 	return &heartbeatpb.ModelReplicaDetails{
-		ReplicaId:    m.ID,
-		ModelId:      m.ModelID,
-		Name:         m.Name,
-		Version:      m.Version,
-		FilePath:     m.FilePath,
-		ModelType:    string(m.ModelType),
-		ModelSize:    m.ModelSize,
-		Status:       string(m.Status),
-		ErrorCode:    int32(m.ErrorCode),
-		ErrorMessage: m.ErrorMessage,
+		ReplicaId:     m.ID,
+		ModelId:       m.ModelID,
+		Name:          m.Name,
+		Version:       m.Version,
+		FilePath:      m.FilePath,
+		ModelType:     string(m.ModelType),
+		ModelSize:     m.ModelSize,
+		Status:        string(m.Status),
+		ErrorCode:     int32(m.ErrorCode),
+		ErrorMessage:  m.ErrorMessage,
+		InstanceCount: int32(m.InstanceCount),
 	}
 }
