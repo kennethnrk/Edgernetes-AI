@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package deployAPI;
+
+option go_package = "internal/common/pb/deploy;deploypb";
+
+service DeployAPI {
+    rpc DeployModel(DeployModelRequest) returns (DeployModelResponse);
+}
+
+message DeployModelRequest {
+    string model_id = 1;
+    string name = 2;
+    string version = 3;
+    string file_path = 4;
+    string model_type = 5;
+    int64 model_size = 6;
+}
+
+message DeployModelResponse {
+    bool success = 1;
+    string message = 2;
+}

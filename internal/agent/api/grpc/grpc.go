@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/agent"
+	deploypb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/deploy"
 	heartbeatpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/heartbeat"
 	"google.golang.org/grpc"
 )
@@ -26,7 +27,11 @@ func StartGRPCServer(a *agent.Agent, addr string) error {
 	heartbeatSrv := NewHeartbeatServer(a)
 	heartbeatpb.RegisterHeartbeatAPIServer(s, heartbeatSrv)
 
-	log.Printf("Heartbeat gRPC server listening on %s", addr)
+	// Create and register deploy server
+	deploySrv := NewDeployServer(a)
+	deploypb.RegisterDeployAPIServer(s, deploySrv)
+
+	log.Printf("Heartbeat & Deploy gRPC servers listening on %s", addr)
 
 	// Start server (blocking)
 	if err := s.Serve(lis); err != nil {

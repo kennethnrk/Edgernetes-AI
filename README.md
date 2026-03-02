@@ -88,9 +88,8 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 2. **Generate Protocol Buffer code**:
    ```bash
    # Generate Go code from .proto files
-   protoc --go_out=. --go_opt=paths=source_relative \
-          --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-          api/proto/*.proto
+   ```bash
+   protoc --go_out=. --go-grpc_out=. api/proto/*.proto
    ```
 
 3. **Build the control plane**:
