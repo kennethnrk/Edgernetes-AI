@@ -38,7 +38,7 @@ func (s *heartbeatServer) RequestHeartbeat(ctx context.Context, req *heartbeatpb
 	// Convert model replicas to protobuf format
 	pbModelReplicas := make([]*heartbeatpb.ModelReplicaDetails, len(modelReplicas))
 	for i := range modelReplicas {
-		pbModelReplicas[i] = modelReplicaToProto(&modelReplicas[i])
+		pbModelReplicas[i] = ModelReplicaToProto(&modelReplicas[i])
 	}
 
 	return &heartbeatpb.RequestHeartbeatResponse{
@@ -48,8 +48,8 @@ func (s *heartbeatServer) RequestHeartbeat(ctx context.Context, req *heartbeatpb
 	}, nil
 }
 
-// modelReplicaToProto converts agent.ModelReplicaDetails to heartbeatpb.ModelReplicaDetails.
-func modelReplicaToProto(m *agent.ModelReplicaDetails) *heartbeatpb.ModelReplicaDetails {
+// ModelReplicaToProto converts agent.ModelReplicaDetails to heartbeatpb.ModelReplicaDetails.
+func ModelReplicaToProto(m *agent.ModelReplicaDetails) *heartbeatpb.ModelReplicaDetails {
 	return &heartbeatpb.ModelReplicaDetails{
 		ReplicaId:    m.ID,
 		ModelId:      m.ModelID,

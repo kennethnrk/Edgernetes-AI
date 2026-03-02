@@ -35,7 +35,7 @@ var xScales = []float32{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 var yMean float32 = 0
 var yScale float32 = 1
 
-func scaleFeatures(raw []float32) []float32 {
+func ScaleFeatures(raw []float32) []float32 {
 
 	scaled := make([]float32, len(raw))
 	for i := range raw {
@@ -46,7 +46,7 @@ func scaleFeatures(raw []float32) []float32 {
 
 func ModelInference(modelPath string, inputData []float32, scalingEnabled bool) (float32, error) {
 	if scalingEnabled {
-		inputData = scaleFeatures(inputData)
+		inputData = ScaleFeatures(inputData)
 	}
 
 	outputShape := ort.NewShape(1, 1)
