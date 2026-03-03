@@ -122,13 +122,18 @@ var DeployAPI_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	ModelTransferService_DownloadModel_FullMethodName = "/deployAPI.ModelTransferService/DownloadModel"
+	ModelTransferService_UploadModel_FullMethodName   = "/deployAPI.ModelTransferService/UploadModel"
 )
 
 // ModelTransferServiceClient is the client API for ModelTransferService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ModelTransferServiceClient interface {
+	// DownloadModel streams a model file from the control plane to the caller.
 	DownloadModel(ctx context.Context, in *ModelDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ModelChunk], error)
+	// UploadModel streams a model file from the caller to the control plane.
+	// The first chunk must carry ModelUploadMetadata; subsequent chunks carry raw bytes.
+	UploadModel(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ModelUploadChunk, ModelUploadResponse], error)
 }
 
 type modelTransferServiceClient struct {
@@ -158,11 +163,28 @@ func (c *modelTransferServiceClient) DownloadModel(ctx context.Context, in *Mode
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ModelTransferService_DownloadModelClient = grpc.ServerStreamingClient[ModelChunk]
 
+func (c *modelTransferServiceClient) UploadModel(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ModelUploadChunk, ModelUploadResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ModelTransferService_ServiceDesc.Streams[1], ModelTransferService_UploadModel_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ModelUploadChunk, ModelUploadResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ModelTransferService_UploadModelClient = grpc.ClientStreamingClient[ModelUploadChunk, ModelUploadResponse]
+
 // ModelTransferServiceServer is the server API for ModelTransferService service.
 // All implementations must embed UnimplementedModelTransferServiceServer
 // for forward compatibility.
 type ModelTransferServiceServer interface {
+	// DownloadModel streams a model file from the control plane to the caller.
 	DownloadModel(*ModelDownloadRequest, grpc.ServerStreamingServer[ModelChunk]) error
+	// UploadModel streams a model file from the caller to the control plane.
+	// The first chunk must carry ModelUploadMetadata; subsequent chunks carry raw bytes.
+	UploadModel(grpc.ClientStreamingServer[ModelUploadChunk, ModelUploadResponse]) error
 	mustEmbedUnimplementedModelTransferServiceServer()
 }
 
@@ -175,6 +197,9 @@ type UnimplementedModelTransferServiceServer struct{}
 
 func (UnimplementedModelTransferServiceServer) DownloadModel(*ModelDownloadRequest, grpc.ServerStreamingServer[ModelChunk]) error {
 	return status.Error(codes.Unimplemented, "method DownloadModel not implemented")
+}
+func (UnimplementedModelTransferServiceServer) UploadModel(grpc.ClientStreamingServer[ModelUploadChunk, ModelUploadResponse]) error {
+	return status.Error(codes.Unimplemented, "method UploadModel not implemented")
 }
 func (UnimplementedModelTransferServiceServer) mustEmbedUnimplementedModelTransferServiceServer() {}
 func (UnimplementedModelTransferServiceServer) testEmbeddedByValue()                              {}
@@ -208,6 +233,13 @@ func _ModelTransferService_DownloadModel_Handler(srv interface{}, stream grpc.Se
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ModelTransferService_DownloadModelServer = grpc.ServerStreamingServer[ModelChunk]
 
+func _ModelTransferService_UploadModel_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ModelTransferServiceServer).UploadModel(&grpc.GenericServerStream[ModelUploadChunk, ModelUploadResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ModelTransferService_UploadModelServer = grpc.ClientStreamingServer[ModelUploadChunk, ModelUploadResponse]
+
 // ModelTransferService_ServiceDesc is the grpc.ServiceDesc for ModelTransferService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -220,6 +252,11 @@ var ModelTransferService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "DownloadModel",
 			Handler:       _ModelTransferService_DownloadModel_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "UploadModel",
+			Handler:       _ModelTransferService_UploadModel_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "api/proto/deploy.proto",

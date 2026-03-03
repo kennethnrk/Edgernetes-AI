@@ -1,12 +1,15 @@
 package grpcregistry
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/google/uuid"
 	deploypb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/deploy"
 	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
@@ -21,17 +24,21 @@ import (
 const chunkSize = 2 * 1024 * 1024 // 2MB
 
 // modelTransferServer implements the ModelTransferServiceServer interface.
-// It serves raw model files to edge agents over a gRPC server-streaming RPC.
-// This is the fallback path used when no external blob storage (e.g., S3) is configured.
+// It handles both streaming model files to edge agents (DownloadModel) and
+// receiving model files uploaded from clients (UploadModel).
 type modelTransferServer struct {
 	deploypb.UnimplementedModelTransferServiceServer
-	store *store.Store
+	store    *store.Store
+	modelDir string // directory where uploaded model files are persisted
 }
 
 // NewModelTransferServer creates a new model transfer server.
-func NewModelTransferServer(s *store.Store) deploypb.ModelTransferServiceServer {
+// modelDir is the directory where uploaded models will be stored on disk.
+// If it does not exist it will be created automatically on the first upload.
+func NewModelTransferServer(s *store.Store, modelDir string) deploypb.ModelTransferServiceServer {
 	return &modelTransferServer{
-		store: s,
+		store:    s,
+		modelDir: modelDir,
 	}
 }
 
@@ -113,4 +120,154 @@ func (s *modelTransferServer) DownloadModel(req *deploypb.ModelDownloadRequest, 
 
 	log.Printf("[model-transfer] completed transfer of model %q: %d chunks, %d bytes", modelID, chunkCount, currentOffset)
 	return nil
+}
+
+// UploadModel receives a client-streaming upload of a model file, validates it,
+// persists it to disk, and returns the stored file path.
+//
+// Protocol:
+//  1. The FIRST message MUST carry ModelUploadMetadata (filename, total_size, sha256_hash).
+//     Filename must have an ".onnx" extension.
+//  2. All SUBSEQUENT messages MUST carry chunk_data bytes.
+//
+// Validation performed by the server:
+//   - Filename must end in ".onnx"
+//   - First 2 bytes of file content are verified to be a valid protobuf varint field tag,
+//     which is the binary structure all ONNX ModelProto files start with.
+//   - Total bytes received must equal the declared total_size.
+//   - SHA256 of the received bytes must match the declared sha256_hash.
+//
+// On success the file is atomically renamed from a temporary ".uploading" path
+// to its final name and the absolute path is returned to the caller.
+func (s *modelTransferServer) UploadModel(stream grpc.ClientStreamingServer[deploypb.ModelUploadChunk, deploypb.ModelUploadResponse]) error {
+	// ── Step 1: receive and validate the metadata message ────────────────────
+	firstMsg, err := stream.Recv()
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to receive first message: %v", err)
+	}
+
+	meta, ok := firstMsg.GetContent().(*deploypb.ModelUploadChunk_Metadata)
+	if !ok || meta.Metadata == nil {
+		return status.Error(codes.InvalidArgument, "first message must contain ModelUploadMetadata")
+	}
+
+	filename := strings.TrimSpace(meta.Metadata.GetFilename())
+	if filename == "" {
+		return status.Error(codes.InvalidArgument, "metadata.filename cannot be empty")
+	}
+	if !strings.HasSuffix(strings.ToLower(filename), ".onnx") {
+		return status.Errorf(codes.InvalidArgument, "filename %q must have an .onnx extension", filename)
+	}
+	expectedHash := strings.TrimSpace(meta.Metadata.GetSha256Hash())
+	if expectedHash == "" {
+		return status.Error(codes.InvalidArgument, "metadata.sha256_hash cannot be empty")
+	}
+	declaredSize := meta.Metadata.GetTotalSize()
+	if declaredSize <= 0 {
+		return status.Error(codes.InvalidArgument, "metadata.total_size must be greater than zero")
+	}
+
+	log.Printf("[model-upload] starting upload: file=%q size=%d expected_hash=%s", filename, declaredSize, expectedHash)
+
+	// ── Step 2: prepare the storage directory and temp file ──────────────────
+	if err := os.MkdirAll(s.modelDir, 0755); err != nil {
+		return status.Errorf(codes.Internal, "failed to create model directory: %v", err)
+	}
+
+	uploadID := uuid.New().String()
+	tempPath := filepath.Join(s.modelDir, uploadID+".uploading")
+
+	tmpFile, err := os.Create(tempPath)
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to create temp file: %v", err)
+	}
+
+	// Ensure temp file is always cleaned up on any failure path.
+	committed := false
+	defer func() {
+		tmpFile.Close()
+		if !committed {
+			os.Remove(tempPath)
+		}
+	}()
+
+	// ── Step 3: stream and write chunks ──────────────────────────────────────
+	hasher := sha256.New()
+	writer := io.MultiWriter(tmpFile, hasher)
+
+	var totalWritten int64
+	var onnxValidated bool // checked on the very first data chunk
+
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			break // client has finished sending
+		}
+		if err != nil {
+			return status.Errorf(codes.Internal, "stream receive error: %v", err)
+		}
+
+		dataChunk, ok := msg.GetContent().(*deploypb.ModelUploadChunk_ChunkData)
+		if !ok {
+			return status.Error(codes.InvalidArgument, "subsequent messages must carry chunk_data, not metadata")
+		}
+		data := dataChunk.ChunkData
+
+		// Validate ONNX magic bytes on the very first data chunk.
+		// All ONNX ModelProto (protobuf) files begin with a varint-encoded field tag.
+		// A valid protobuf field tag byte has its lower 3 bits (wire type) in {0,1,2,5},
+		// meaning bit patterns xxx_000, xxx_001, xxx_010, or xxx_101.
+		// Wire type 6 and 7 are reserved/invalid in protobuf.
+		if !onnxValidated {
+			if len(data) < 2 {
+				return status.Error(codes.InvalidArgument, "first data chunk too small to validate as ONNX")
+			}
+			wireType := data[0] & 0x07
+			if wireType == 6 || wireType == 7 {
+				return status.Errorf(codes.InvalidArgument,
+					"file does not appear to be a valid ONNX model: invalid protobuf wire type %d in first byte", wireType)
+			}
+			onnxValidated = true
+		}
+
+		if _, err := writer.Write(data); err != nil {
+			return status.Errorf(codes.Internal, "failed to write chunk at offset %d: %v", msg.GetChunkOffset(), err)
+		}
+		totalWritten += int64(len(data))
+	}
+
+	// ── Step 4: validate size ─────────────────────────────────────────────────
+	if totalWritten != declaredSize {
+		return status.Errorf(codes.DataLoss,
+			"upload size mismatch: received %d bytes, expected %d", totalWritten, declaredSize)
+	}
+
+	// ── Step 5: validate SHA256 hash ─────────────────────────────────────────
+	actualHash := fmt.Sprintf("%x", hasher.Sum(nil))
+	if actualHash != expectedHash {
+		return status.Errorf(codes.DataLoss,
+			"SHA256 mismatch: got %s, expected %s", actualHash, expectedHash)
+	}
+
+	// ── Step 6: atomic rename to final path ──────────────────────────────────
+	// Use the original client filename (base name only — no directory traversal).
+	safeFilename := filepath.Base(filename)
+	finalPath, err := filepath.Abs(filepath.Join(s.modelDir, safeFilename))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to resolve final path: %v", err)
+	}
+
+	tmpFile.Close()
+	if err := os.Rename(tempPath, finalPath); err != nil {
+		return status.Errorf(codes.Internal, "failed to commit model file: %v", err)
+	}
+	committed = true
+
+	log.Printf("[model-upload] committed model %q → %s (%d bytes)", filename, finalPath, totalWritten)
+
+	return stream.SendAndClose(&deploypb.ModelUploadResponse{
+		Success:  true,
+		FilePath: finalPath,
+		Message:  fmt.Sprintf("model %q uploaded successfully (%d bytes)", safeFilename, totalWritten),
+	})
 }

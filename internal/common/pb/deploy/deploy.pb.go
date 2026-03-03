@@ -285,6 +285,221 @@ func (x *ModelChunk) GetChunkOffset() int64 {
 	return 0
 }
 
+// ModelUploadMetadata is sent as the first message of an UploadModel stream.
+// All subsequent messages must use chunk_data instead.
+type ModelUploadMetadata struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`                       // Must end in ".onnx"
+	TotalSize     int64                  `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`   // Expected total file size in bytes
+	Sha256Hash    string                 `protobuf:"bytes,3,opt,name=sha256_hash,json=sha256Hash,proto3" json:"sha256_hash,omitempty"` // Expected SHA256 hex digest of the full file
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelUploadMetadata) Reset() {
+	*x = ModelUploadMetadata{}
+	mi := &file_api_proto_deploy_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelUploadMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelUploadMetadata) ProtoMessage() {}
+
+func (x *ModelUploadMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_deploy_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelUploadMetadata.ProtoReflect.Descriptor instead.
+func (*ModelUploadMetadata) Descriptor() ([]byte, []int) {
+	return file_api_proto_deploy_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ModelUploadMetadata) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+func (x *ModelUploadMetadata) GetTotalSize() int64 {
+	if x != nil {
+		return x.TotalSize
+	}
+	return 0
+}
+
+func (x *ModelUploadMetadata) GetSha256Hash() string {
+	if x != nil {
+		return x.Sha256Hash
+	}
+	return ""
+}
+
+// ModelUploadChunk is the client-streaming message for UploadModel.
+// The first message MUST populate the metadata field.
+// All subsequent messages MUST populate chunk_data and chunk_offset.
+type ModelUploadChunk struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Content:
+	//
+	//	*ModelUploadChunk_Metadata
+	//	*ModelUploadChunk_ChunkData
+	Content       isModelUploadChunk_Content `protobuf_oneof:"content"`
+	ChunkOffset   int64                      `protobuf:"varint,3,opt,name=chunk_offset,json=chunkOffset,proto3" json:"chunk_offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelUploadChunk) Reset() {
+	*x = ModelUploadChunk{}
+	mi := &file_api_proto_deploy_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelUploadChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelUploadChunk) ProtoMessage() {}
+
+func (x *ModelUploadChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_deploy_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelUploadChunk.ProtoReflect.Descriptor instead.
+func (*ModelUploadChunk) Descriptor() ([]byte, []int) {
+	return file_api_proto_deploy_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ModelUploadChunk) GetContent() isModelUploadChunk_Content {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+func (x *ModelUploadChunk) GetMetadata() *ModelUploadMetadata {
+	if x != nil {
+		if x, ok := x.Content.(*ModelUploadChunk_Metadata); ok {
+			return x.Metadata
+		}
+	}
+	return nil
+}
+
+func (x *ModelUploadChunk) GetChunkData() []byte {
+	if x != nil {
+		if x, ok := x.Content.(*ModelUploadChunk_ChunkData); ok {
+			return x.ChunkData
+		}
+	}
+	return nil
+}
+
+func (x *ModelUploadChunk) GetChunkOffset() int64 {
+	if x != nil {
+		return x.ChunkOffset
+	}
+	return 0
+}
+
+type isModelUploadChunk_Content interface {
+	isModelUploadChunk_Content()
+}
+
+type ModelUploadChunk_Metadata struct {
+	Metadata *ModelUploadMetadata `protobuf:"bytes,1,opt,name=metadata,proto3,oneof"`
+}
+
+type ModelUploadChunk_ChunkData struct {
+	ChunkData []byte `protobuf:"bytes,2,opt,name=chunk_data,json=chunkData,proto3,oneof"`
+}
+
+func (*ModelUploadChunk_Metadata) isModelUploadChunk_Content() {}
+
+func (*ModelUploadChunk_ChunkData) isModelUploadChunk_Content() {}
+
+type ModelUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	FilePath      string                 `protobuf:"bytes,2,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"` // Absolute path on the control plane where the model was stored
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelUploadResponse) Reset() {
+	*x = ModelUploadResponse{}
+	mi := &file_api_proto_deploy_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelUploadResponse) ProtoMessage() {}
+
+func (x *ModelUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_deploy_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelUploadResponse.ProtoReflect.Descriptor instead.
+func (*ModelUploadResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_deploy_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ModelUploadResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ModelUploadResponse) GetFilePath() string {
+	if x != nil {
+		return x.FilePath
+	}
+	return ""
+}
+
+func (x *ModelUploadResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_api_proto_deploy_proto protoreflect.FileDescriptor
 
 const file_api_proto_deploy_proto_rawDesc = "" +
@@ -313,11 +528,28 @@ const file_api_proto_deploy_proto_rawDesc = "" +
 	"ModelChunk\x12\x1d\n" +
 	"\n" +
 	"chunk_data\x18\x01 \x01(\fR\tchunkData\x12!\n" +
-	"\fchunk_offset\x18\x02 \x01(\x03R\vchunkOffset2Y\n" +
+	"\fchunk_offset\x18\x02 \x01(\x03R\vchunkOffset\"q\n" +
+	"\x13ModelUploadMetadata\x12\x1a\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x1d\n" +
+	"\n" +
+	"total_size\x18\x02 \x01(\x03R\ttotalSize\x12\x1f\n" +
+	"\vsha256_hash\x18\x03 \x01(\tR\n" +
+	"sha256Hash\"\x9f\x01\n" +
+	"\x10ModelUploadChunk\x12<\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1e.deployAPI.ModelUploadMetadataH\x00R\bmetadata\x12\x1f\n" +
+	"\n" +
+	"chunk_data\x18\x02 \x01(\fH\x00R\tchunkData\x12!\n" +
+	"\fchunk_offset\x18\x03 \x01(\x03R\vchunkOffsetB\t\n" +
+	"\acontent\"f\n" +
+	"\x13ModelUploadResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
+	"\tfile_path\x18\x02 \x01(\tR\bfilePath\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage2Y\n" +
 	"\tDeployAPI\x12L\n" +
-	"\vDeployModel\x12\x1d.deployAPI.DeployModelRequest\x1a\x1e.deployAPI.DeployModelResponse2a\n" +
+	"\vDeployModel\x12\x1d.deployAPI.DeployModelRequest\x1a\x1e.deployAPI.DeployModelResponse2\xaf\x01\n" +
 	"\x14ModelTransferService\x12I\n" +
-	"\rDownloadModel\x12\x1f.deployAPI.ModelDownloadRequest\x1a\x15.deployAPI.ModelChunk0\x01B$Z\"internal/common/pb/deploy;deploypbb\x06proto3"
+	"\rDownloadModel\x12\x1f.deployAPI.ModelDownloadRequest\x1a\x15.deployAPI.ModelChunk0\x01\x12L\n" +
+	"\vUploadModel\x12\x1b.deployAPI.ModelUploadChunk\x1a\x1e.deployAPI.ModelUploadResponse(\x01B$Z\"internal/common/pb/deploy;deploypbb\x06proto3"
 
 var (
 	file_api_proto_deploy_proto_rawDescOnce sync.Once
@@ -331,23 +563,29 @@ func file_api_proto_deploy_proto_rawDescGZIP() []byte {
 	return file_api_proto_deploy_proto_rawDescData
 }
 
-var file_api_proto_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_proto_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_proto_deploy_proto_goTypes = []any{
 	(*DeployModelRequest)(nil),   // 0: deployAPI.DeployModelRequest
 	(*DeployModelResponse)(nil),  // 1: deployAPI.DeployModelResponse
 	(*ModelDownloadRequest)(nil), // 2: deployAPI.ModelDownloadRequest
 	(*ModelChunk)(nil),           // 3: deployAPI.ModelChunk
+	(*ModelUploadMetadata)(nil),  // 4: deployAPI.ModelUploadMetadata
+	(*ModelUploadChunk)(nil),     // 5: deployAPI.ModelUploadChunk
+	(*ModelUploadResponse)(nil),  // 6: deployAPI.ModelUploadResponse
 }
 var file_api_proto_deploy_proto_depIdxs = []int32{
-	0, // 0: deployAPI.DeployAPI.DeployModel:input_type -> deployAPI.DeployModelRequest
-	2, // 1: deployAPI.ModelTransferService.DownloadModel:input_type -> deployAPI.ModelDownloadRequest
-	1, // 2: deployAPI.DeployAPI.DeployModel:output_type -> deployAPI.DeployModelResponse
-	3, // 3: deployAPI.ModelTransferService.DownloadModel:output_type -> deployAPI.ModelChunk
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: deployAPI.ModelUploadChunk.metadata:type_name -> deployAPI.ModelUploadMetadata
+	0, // 1: deployAPI.DeployAPI.DeployModel:input_type -> deployAPI.DeployModelRequest
+	2, // 2: deployAPI.ModelTransferService.DownloadModel:input_type -> deployAPI.ModelDownloadRequest
+	5, // 3: deployAPI.ModelTransferService.UploadModel:input_type -> deployAPI.ModelUploadChunk
+	1, // 4: deployAPI.DeployAPI.DeployModel:output_type -> deployAPI.DeployModelResponse
+	3, // 5: deployAPI.ModelTransferService.DownloadModel:output_type -> deployAPI.ModelChunk
+	6, // 6: deployAPI.ModelTransferService.UploadModel:output_type -> deployAPI.ModelUploadResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_deploy_proto_init() }
@@ -355,13 +593,17 @@ func file_api_proto_deploy_proto_init() {
 	if File_api_proto_deploy_proto != nil {
 		return
 	}
+	file_api_proto_deploy_proto_msgTypes[5].OneofWrappers = []any{
+		(*ModelUploadChunk_Metadata)(nil),
+		(*ModelUploadChunk_ChunkData)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_deploy_proto_rawDesc), len(file_api_proto_deploy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

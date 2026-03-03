@@ -38,7 +38,12 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	grpcregistry.RegisterServices(s, store)
+
+	modelDir := filepath.Join(".", "data", "models")
+	if env := os.Getenv("MODEL_STORE_DIR"); env != "" {
+		modelDir = env
+	}
+	grpcregistry.RegisterServices(s, store, modelDir)
 
 	intervalSeconds := 10
 

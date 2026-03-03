@@ -33,7 +33,7 @@ func newModelTransferClient(t *testing.T, s *store.Store) deploypb.ModelTransfer
 
 	lis := bufconn.Listen(bufSize)
 	srv := grpc.NewServer()
-	deploypb.RegisterModelTransferServiceServer(srv, grpcregistry.NewModelTransferServer(s))
+	deploypb.RegisterModelTransferServiceServer(srv, grpcregistry.NewModelTransferServer(s, t.TempDir()))
 
 	go func() {
 		if err := srv.Serve(lis); err != nil && err != grpc.ErrServerStopped {
@@ -449,5 +449,313 @@ func TestModelTransfer_ClientCancellation(t *testing.T) {
 			}
 			t.Fatalf("unexpected error after cancel: %v", err)
 		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Upload tests
+// ---------------------------------------------------------------------------
+
+// makeONNXBytes produces bytes that pass ONNX magic-byte validation.
+// A valid protobuf field tag has wire type in {0,1,2,5}; 0x08 = field 1, varint (ir_version)
+func makeONNXBytes(sizeBytes int) []byte {
+	b := make([]byte, sizeBytes)
+	b[0] = 0x08 // valid protobuf field tag (wire type 0)
+	b[1] = 0x01 // varint value 1 (ir_version = 1)
+	for i := 2; i < sizeBytes; i++ {
+		b[i] = byte(i % 256)
+	}
+	return b
+}
+
+// uploadFile streams data as proper ModelUploadChunk messages to UploadModel.
+func uploadFile(t *testing.T, stream deploypb.ModelTransferService_UploadModelClient, filename string, data []byte) {
+	t.Helper()
+
+	hasher := sha256.New()
+	hasher.Write(data)
+	expectedHash := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	// Send metadata as the first message.
+	if err := stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   filename,
+				TotalSize:  int64(len(data)),
+				Sha256Hash: expectedHash,
+			},
+		},
+	}); err != nil {
+		t.Fatalf("Send(metadata) error = %v", err)
+	}
+
+	// Stream data chunks.
+	const uploadChunk = 512 * 1024 // 512KB per chunk
+	for offset := 0; offset < len(data); offset += uploadChunk {
+		end := offset + uploadChunk
+		if end > len(data) {
+			end = len(data)
+		}
+		if err := stream.Send(&deploypb.ModelUploadChunk{
+			Content:     &deploypb.ModelUploadChunk_ChunkData{ChunkData: data[offset:end]},
+			ChunkOffset: int64(offset),
+		}); err != nil {
+			t.Fatalf("Send(chunk offset=%d) error = %v", offset, err)
+		}
+	}
+}
+
+// TestModelUpload_HappyPath verifies that a well-formed .onnx upload completes
+// successfully, returns the file path, and that the file exists on disk with
+// matching content.
+func TestModelUpload_HappyPath(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+
+	modelDir := t.TempDir()
+	lis := bufconn.Listen(bufSize)
+	srv := grpc.NewServer()
+	deploypb.RegisterModelTransferServiceServer(srv, grpcregistry.NewModelTransferServer(s, modelDir))
+	go func() { srv.Serve(lis) }()
+	t.Cleanup(func() { srv.GracefulStop(); lis.Close() })
+
+	conn, _ := grpc.NewClient("passthrough://bufnet",
+		grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) { return lis.DialContext(ctx) }),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	t.Cleanup(func() { conn.Close() })
+	client := deploypb.NewModelTransferServiceClient(conn)
+
+	data := makeONNXBytes(1024 * 1024) // 1MB
+	stream, err := client.UploadModel(context.Background())
+	if err != nil {
+		t.Fatalf("UploadModel() error = %v", err)
+	}
+
+	uploadFile(t, stream, "mymodel.onnx", data)
+
+	resp, err := stream.CloseAndRecv()
+	if err != nil {
+		t.Fatalf("CloseAndRecv() error = %v", err)
+	}
+	if !resp.GetSuccess() {
+		t.Fatalf("expected success=true, got message: %s", resp.GetMessage())
+	}
+	if resp.GetFilePath() == "" {
+		t.Fatal("expected non-empty file_path in response")
+	}
+
+	// Verify the file was actually written to disk.
+	diskData, err := os.ReadFile(resp.GetFilePath())
+	if err != nil {
+		t.Fatalf("os.ReadFile(resp.FilePath) error = %v", err)
+	}
+	if len(diskData) != len(data) {
+		t.Fatalf("disk file size %d, want %d", len(diskData), len(data))
+	}
+}
+
+// TestModelUpload_SHA256Integrity verifies the round-trip hash: data uploaded
+// must match the SHA256 the client declares in metadata.
+func TestModelUpload_SHA256Integrity(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	data := makeONNXBytes(256 * 1024)
+	hasher := sha256.New()
+	hasher.Write(data)
+	correctHash := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	stream, _ := client.UploadModel(context.Background())
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   "integrity.onnx",
+				TotalSize:  int64(len(data)),
+				Sha256Hash: correctHash,
+			},
+		},
+	})
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content:     &deploypb.ModelUploadChunk_ChunkData{ChunkData: data},
+		ChunkOffset: 0,
+	})
+
+	resp, err := stream.CloseAndRecv()
+	if err != nil {
+		t.Fatalf("CloseAndRecv() error = %v", err)
+	}
+	if !resp.GetSuccess() {
+		t.Fatalf("upload failed: %s", resp.GetMessage())
+	}
+}
+
+// TestModelUpload_RejectsNonONNXExtension verifies that a file without an
+// .onnx extension is rejected with InvalidArgument.
+func TestModelUpload_RejectsNonONNXExtension(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	stream, err := client.UploadModel(context.Background())
+	if err != nil {
+		t.Fatalf("UploadModel() error = %v", err)
+	}
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   "model.pt", // wrong extension
+				TotalSize:  100,
+				Sha256Hash: "abc123",
+			},
+		},
+	})
+
+	_, err = stream.CloseAndRecv()
+	if err == nil {
+		t.Fatal("expected error for non-.onnx extension, got nil")
+	}
+	st, _ := status.FromError(err)
+	if st.Code() != codes.InvalidArgument {
+		t.Fatalf("expected InvalidArgument, got %v", st.Code())
+	}
+}
+
+// TestModelUpload_RejectsDataChunkAsFirstMessage verifies that sending a data
+// chunk instead of metadata as the first message is rejected.
+func TestModelUpload_RejectsDataChunkAsFirstMessage(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	stream, err := client.UploadModel(context.Background())
+	if err != nil {
+		t.Fatalf("UploadModel() error = %v", err)
+	}
+	// Send data bytes as the FIRST message instead of metadata.
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content:     &deploypb.ModelUploadChunk_ChunkData{ChunkData: []byte{0x08, 0x01}},
+		ChunkOffset: 0,
+	})
+
+	_, err = stream.CloseAndRecv()
+	if err == nil {
+		t.Fatal("expected error when first message is data, got nil")
+	}
+	st, _ := status.FromError(err)
+	if st.Code() != codes.InvalidArgument {
+		t.Fatalf("expected InvalidArgument, got %v", st.Code())
+	}
+}
+
+// TestModelUpload_RejectsWrongHash verifies that a deliberate SHA256 mismatch
+// causes the upload to fail with DataLoss.
+func TestModelUpload_RejectsWrongHash(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	data := makeONNXBytes(64 * 1024)
+	stream, _ := client.UploadModel(context.Background())
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   "bad-hash.onnx",
+				TotalSize:  int64(len(data)),
+				Sha256Hash: "0000000000000000000000000000000000000000000000000000000000000000",
+			},
+		},
+	})
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_ChunkData{ChunkData: data},
+	})
+
+	_, err := stream.CloseAndRecv()
+	if err == nil {
+		t.Fatal("expected error for wrong hash, got nil")
+	}
+	st, _ := status.FromError(err)
+	if st.Code() != codes.DataLoss {
+		t.Fatalf("expected DataLoss, got %v", st.Code())
+	}
+}
+
+// TestModelUpload_RejectsSizeMismatch verifies that sending fewer bytes than
+// declared in total_size causes DataLoss.
+func TestModelUpload_RejectsSizeMismatch(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	data := makeONNXBytes(1024)
+	hasher := sha256.New()
+	hasher.Write(data)
+	hash := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	stream, _ := client.UploadModel(context.Background())
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   "short.onnx",
+				TotalSize:  int64(len(data)) + 9999, // lie about the size
+				Sha256Hash: hash,
+			},
+		},
+	})
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_ChunkData{ChunkData: data},
+	})
+
+	_, err := stream.CloseAndRecv()
+	if err == nil {
+		t.Fatal("expected error for size mismatch, got nil")
+	}
+	st, _ := status.FromError(err)
+	if st.Code() != codes.DataLoss {
+		t.Fatalf("expected DataLoss, got %v", st.Code())
+	}
+}
+
+// TestModelUpload_RejectsInvalidONNXMagic verifies that a file whose first
+// byte has an invalid protobuf wire type is rejected as not being an ONNX file.
+func TestModelUpload_RejectsInvalidONNXMagic(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+	client := newModelTransferClient(t, s)
+
+	// Wire type 6 in first byte — reserved/invalid in protobuf.
+	data := make([]byte, 1024)
+	data[0] = 0x06 // wire type 6 = invalid
+	data[1] = 0x00
+	for i := 2; i < len(data); i++ {
+		data[i] = byte(i)
+	}
+
+	hasher := sha256.New()
+	hasher.Write(data)
+	hash := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	stream, _ := client.UploadModel(context.Background())
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_Metadata{
+			Metadata: &deploypb.ModelUploadMetadata{
+				Filename:   "fake.onnx",
+				TotalSize:  int64(len(data)),
+				Sha256Hash: hash,
+			},
+		},
+	})
+	stream.Send(&deploypb.ModelUploadChunk{
+		Content: &deploypb.ModelUploadChunk_ChunkData{ChunkData: data},
+	})
+
+	_, err := stream.CloseAndRecv()
+	if err == nil {
+		t.Fatal("expected error for invalid ONNX magic, got nil")
+	}
+	st, _ := status.FromError(err)
+	if st.Code() != codes.InvalidArgument {
+		t.Fatalf("expected InvalidArgument, got %v", st.Code())
 	}
 }

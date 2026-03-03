@@ -9,7 +9,8 @@ import (
 )
 
 // RegisterServices registers all gRPC services with the given gRPC server.
-func RegisterServices(s *grpc.Server, store *store.Store) {
+// modelDir is the directory on disk where uploaded model files will be stored.
+func RegisterServices(s *grpc.Server, store *store.Store, modelDir string) {
 	// Register Model Registry API
 	modelSrv := NewModelRegistryServer(store)
 	modelpb.RegisterModelRegistryAPIServer(s, modelSrv)
@@ -19,6 +20,6 @@ func RegisterServices(s *grpc.Server, store *store.Store) {
 	nodepb.RegisterNodeRegistryAPIServer(s, nodeSrv)
 
 	// Register Model Transfer Service (gRPC streaming fallback for model file delivery)
-	transferSrv := NewModelTransferServer(store)
+	transferSrv := NewModelTransferServer(store, modelDir)
 	deploypb.RegisterModelTransferServiceServer(s, transferSrv)
 }

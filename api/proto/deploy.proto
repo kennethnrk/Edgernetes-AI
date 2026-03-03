@@ -35,6 +35,36 @@ message ModelChunk {
     int64 chunk_offset = 2;
 }
 
+// ModelUploadMetadata is sent as the first message of an UploadModel stream.
+// All subsequent messages must use chunk_data instead.
+message ModelUploadMetadata {
+    string filename = 1;    // Must end in ".onnx"
+    int64 total_size = 2;   // Expected total file size in bytes
+    string sha256_hash = 3; // Expected SHA256 hex digest of the full file
+}
+
+// ModelUploadChunk is the client-streaming message for UploadModel.
+// The first message MUST populate the metadata field.
+// All subsequent messages MUST populate chunk_data and chunk_offset.
+message ModelUploadChunk {
+    oneof content {
+        ModelUploadMetadata metadata = 1;
+        bytes chunk_data = 2;
+    }
+    int64 chunk_offset = 3;
+}
+
+message ModelUploadResponse {
+    bool success = 1;
+    string file_path = 2;   // Absolute path on the control plane where the model was stored
+    string message = 3;
+}
+
 service ModelTransferService {
+    // DownloadModel streams a model file from the control plane to the caller.
     rpc DownloadModel(ModelDownloadRequest) returns (stream ModelChunk);
+
+    // UploadModel streams a model file from the caller to the control plane.
+    // The first chunk must carry ModelUploadMetadata; subsequent chunks carry raw bytes.
+    rpc UploadModel(stream ModelUploadChunk) returns (ModelUploadResponse);
 }
