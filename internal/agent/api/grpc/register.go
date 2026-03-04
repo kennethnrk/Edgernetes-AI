@@ -42,6 +42,28 @@ func RegisterWithControlPlane(controlPlaneAddr string, agentInfo *agent.Agent) e
 	return nil
 }
 
+// DeregisterWithControlPlane deregisters the agent from the control-plane.
+func DeregisterWithControlPlane(controlPlaneAddr string, nodeID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	conn, err := grpc.NewClient(controlPlaneAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := nodepb.NewNodeRegistryAPIClient(conn)
+
+	_, err = client.DeRegisterNode(ctx, &nodepb.NodeID{NodeId: nodeID})
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Successfully deregistered node %s with control-plane", nodeID)
+	return nil
+}
+
 // agentToNodeInfoProto converts agent.Agent to nodepb.NodeInfo.
 func agentToNodeInfoProto(a *agent.Agent) *nodepb.NodeInfo {
 	pb := &nodepb.NodeInfo{

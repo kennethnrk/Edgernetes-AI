@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/agent"
 	grpcagent "github.com/kennethnrk/edgernetes-ai/internal/agent/api/grpc"
@@ -140,5 +141,24 @@ func TestRequestHeartbeat(t *testing.T) {
 
 	if res.ModelReplicas[0].ReplicaId != "rep-1" {
 		t.Errorf("Expected ReplicaId rep-1, got %s", res.ModelReplicas[0].ReplicaId)
+	}
+}
+
+func TestIsHeartbeatStale(t *testing.T) {
+	a := &agent.Agent{}
+	// Initialize heartbeat
+	a.UpdateLastHeartbeat()
+
+	// Should not be stale immediately
+	if a.IsHeartbeatStale(60 * time.Second) {
+		t.Errorf("Expected heartbeat to not be stale immediately")
+	}
+
+	// Manually set LastHeartbeat to 70 seconds ago to simulate staleness
+	a.LastHeartbeat = time.Now().Add(-70 * time.Second)
+
+	// Should be stale after 70 seconds with a 60 second timeout
+	if !a.IsHeartbeatStale(60 * time.Second) {
+		t.Errorf("Expected heartbeat to be stale after 70 seconds")
 	}
 }

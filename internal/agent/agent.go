@@ -10,6 +10,8 @@ import (
 	"os"
 	"runtime"
 	"slices"
+	"sync"
+	"time"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/agent/utils"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -43,6 +45,9 @@ type Agent struct {
 	Metadata             store.NodeMetadata         `json:"metadata"`
 	ResourceCapabilities store.ResourceCapabilities `json:"resource_capabilities"`
 	AssignedModels       []ModelReplicaDetails      `json:"assigned_models"`
+
+	mu            sync.RWMutex
+	LastHeartbeat time.Time `json:"last_heartbeat"`
 }
 
 func (a *Agent) AssignModel(model ModelReplicaDetails) error {
@@ -51,6 +56,18 @@ func (a *Agent) AssignModel(model ModelReplicaDetails) error {
 	}
 	a.AssignedModels = append(a.AssignedModels, model)
 	return nil
+}
+
+func (a *Agent) UpdateLastHeartbeat() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.LastHeartbeat = time.Now()
+}
+
+func (a *Agent) IsHeartbeatStale(timeout time.Duration) bool {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return time.Since(a.LastHeartbeat) > timeout
 }
 
 func GetAgentInfo(nodeName *string) *Agent {
@@ -153,6 +170,7 @@ func GetAgentInfo(nodeName *string) *Agent {
 			},
 			ComputeDevices: computeDevices,
 		},
+		LastHeartbeat: time.Now(),
 	}
 	return agent
 }

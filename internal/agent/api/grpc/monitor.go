@@ -29,6 +29,9 @@ func (s *heartbeatServer) RequestHeartbeat(ctx context.Context, req *heartbeatpb
 		return nil, status.Error(codes.InvalidArgument, "request cannot be nil")
 	}
 
+	// Update last heartbeat time
+	s.agent.UpdateLastHeartbeat()
+
 	// Call checkHealth to get model replicas and health status
 	modelReplicas, success, err := agentmonitor.CheckHealth(s.agent)
 	if err != nil {

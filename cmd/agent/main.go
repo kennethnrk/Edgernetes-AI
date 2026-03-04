@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/agent"
 	grpcagent "github.com/kennethnrk/edgernetes-ai/internal/agent/api/grpc"
@@ -39,6 +40,31 @@ func main() {
 	}
 
 	log.Printf("Agent registered successfully with node ID: %s (heartbeat at %s:%d)", agentInfo.ID, agentInfo.IP, agentInfo.Port)
+
+	// Start a goroutine to monitor heartbeat staleness and re-register if needed
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			if agentInfo.IsHeartbeatStale(60 * time.Second) {
+				log.Printf("Heartbeat is stale (no request for >60s). Re-registering node %s...", agentInfo.ID)
+
+				// Attempt to deregister first
+				if agentInfo.ID != "" {
+					if err := grpcagent.DeregisterWithControlPlane(*controlPlaneAddress, agentInfo.ID); err != nil {
+						log.Printf("Failed to deregister with control-plane (ignoring): %v", err)
+					}
+				}
+
+				if err := grpcagent.RegisterWithControlPlane(*controlPlaneAddress, agentInfo); err != nil {
+					log.Printf("Failed to re-register with control-plane: %v", err)
+				} else {
+					log.Printf("Successfully re-registered agent. Node ID: %s", agentInfo.ID)
+					agentInfo.UpdateLastHeartbeat() // reset heartbeat timer after successful re-registration
+				}
+			}
+		}
+	}()
 
 	log.Printf("Starting agent gRPC server on %s", serverAddr)
 	if err := grpcagent.StartGRPCServer(agentInfo, serverAddr); err != nil {
