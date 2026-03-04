@@ -12,11 +12,14 @@ message DeployModelRequest {
     string model_id = 1;
     string name = 2;
     string version = 3;
+    // file_path accepts both local filesystem paths (e.g. "/models/model.onnx")
+    // and network blob URLs (e.g. "https://s3.amazonaws.com/bucket/model.onnx").
+    // Use modelpath.IsNetworkPath() to determine which kind of path this is.
     string file_path = 4;
     string model_type = 5;
     int64 model_size = 6;
     int32 instance_count = 7;
-    string download_url = 8;
+    // Field 8 reserved (previously download_url, now carried by file_path).
     string sha256_hash = 9;
 }
 

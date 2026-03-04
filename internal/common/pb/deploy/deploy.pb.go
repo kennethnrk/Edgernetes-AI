@@ -22,16 +22,19 @@ const (
 )
 
 type DeployModelRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ModelId       string                 `protobuf:"bytes,1,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	FilePath      string                 `protobuf:"bytes,4,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
-	ModelType     string                 `protobuf:"bytes,5,opt,name=model_type,json=modelType,proto3" json:"model_type,omitempty"`
-	ModelSize     int64                  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
-	InstanceCount int32                  `protobuf:"varint,7,opt,name=instance_count,json=instanceCount,proto3" json:"instance_count,omitempty"`
-	DownloadUrl   string                 `protobuf:"bytes,8,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
-	Sha256Hash    string                 `protobuf:"bytes,9,opt,name=sha256_hash,json=sha256Hash,proto3" json:"sha256_hash,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	ModelId string                 `protobuf:"bytes,1,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	Name    string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Version string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	// file_path accepts both local filesystem paths (e.g. "/models/model.onnx")
+	// and network blob URLs (e.g. "https://s3.amazonaws.com/bucket/model.onnx").
+	// Use modelpath.IsNetworkPath() to determine which kind of path this is.
+	FilePath      string `protobuf:"bytes,4,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+	ModelType     string `protobuf:"bytes,5,opt,name=model_type,json=modelType,proto3" json:"model_type,omitempty"`
+	ModelSize     int64  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
+	InstanceCount int32  `protobuf:"varint,7,opt,name=instance_count,json=instanceCount,proto3" json:"instance_count,omitempty"`
+	// Field 8 reserved (previously download_url, now carried by file_path).
+	Sha256Hash    string `protobuf:"bytes,9,opt,name=sha256_hash,json=sha256Hash,proto3" json:"sha256_hash,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -113,13 +116,6 @@ func (x *DeployModelRequest) GetInstanceCount() int32 {
 		return x.InstanceCount
 	}
 	return 0
-}
-
-func (x *DeployModelRequest) GetDownloadUrl() string {
-	if x != nil {
-		return x.DownloadUrl
-	}
-	return ""
 }
 
 func (x *DeployModelRequest) GetSha256Hash() string {
@@ -504,7 +500,7 @@ var File_api_proto_deploy_proto protoreflect.FileDescriptor
 
 const file_api_proto_deploy_proto_rawDesc = "" +
 	"\n" +
-	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\xa3\x02\n" +
+	"\x16api/proto/deploy.proto\x12\tdeployAPI\"\x80\x02\n" +
 	"\x12DeployModelRequest\x12\x19\n" +
 	"\bmodel_id\x18\x01 \x01(\tR\amodelId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -514,8 +510,7 @@ const file_api_proto_deploy_proto_rawDesc = "" +
 	"model_type\x18\x05 \x01(\tR\tmodelType\x12\x1d\n" +
 	"\n" +
 	"model_size\x18\x06 \x01(\x03R\tmodelSize\x12%\n" +
-	"\x0einstance_count\x18\a \x01(\x05R\rinstanceCount\x12!\n" +
-	"\fdownload_url\x18\b \x01(\tR\vdownloadUrl\x12\x1f\n" +
+	"\x0einstance_count\x18\a \x01(\x05R\rinstanceCount\x12\x1f\n" +
 	"\vsha256_hash\x18\t \x01(\tR\n" +
 	"sha256Hash\"I\n" +
 	"\x13DeployModelResponse\x12\x18\n" +
