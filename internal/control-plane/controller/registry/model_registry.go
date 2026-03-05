@@ -9,9 +9,22 @@ import (
 )
 
 // RegisterModel stores a new ModelInfo under the given modelID.
+// It enforces that the model name is non-empty and unique across all
+// registered models. Returns an error if a model with the same name
+// already exists.
 func RegisterModel(s *store.Store, modelID string, info store.ModelInfo) error {
 	if modelID == "" {
 		return errors.New("modelID cannot be empty")
+	}
+	if info.Name == "" {
+		return errors.New("model name cannot be empty")
+	}
+
+	// Reject duplicate model names.
+	if existing, found, err := GetModelByName(s, info.Name); err != nil {
+		return fmt.Errorf("check model name uniqueness: %w", err)
+	} else if found {
+		return fmt.Errorf("model name %q is already registered (id=%s)", info.Name, existing.ID)
 	}
 
 	// Ensure the stored ModelInfo has a consistent ID.
@@ -98,4 +111,33 @@ func ListModels(s *store.Store) ([]store.ModelInfo, error) {
 	}
 
 	return models, nil
+}
+
+// GetModelByName looks up a model by its human-readable name.
+// Returns (zero ModelInfo, false, nil) if no model with that name exists.
+func GetModelByName(s *store.Store, name string) (store.ModelInfo, bool, error) {
+	if name == "" {
+		return store.ModelInfo{}, false, errors.New("model name cannot be empty")
+	}
+
+	keys := s.Keys()
+	const prefix = "model:"
+	for _, k := range keys {
+		if len(k) < len(prefix) || k[:len(prefix)] != prefix {
+			continue
+		}
+		raw, ok := s.Get(k)
+		if !ok {
+			continue
+		}
+		var info store.ModelInfo
+		if err := json.Unmarshal(raw, &info); err != nil {
+			return store.ModelInfo{}, false, fmt.Errorf("unmarshal model %q: %w", k, err)
+		}
+		if info.Name == name {
+			return info, true, nil
+		}
+	}
+
+	return store.ModelInfo{}, false, nil
 }

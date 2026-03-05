@@ -349,3 +349,100 @@ func TestListModels(t *testing.T) {
 		}
 	}
 }
+
+func TestRegisterModel_DuplicateNameRejected(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+
+	info := store.ModelInfo{
+		Name:    "duplicate-name",
+		Version: "v1",
+	}
+
+	// First registration should succeed.
+	if err := registrycontroller.RegisterModel(s, "model-a", info); err != nil {
+		t.Fatalf("first RegisterModel() error = %v", err)
+	}
+
+	// Second registration with the same name but a different ID should fail.
+	info2 := store.ModelInfo{
+		Name:    "duplicate-name",
+		Version: "v2",
+	}
+	err := registrycontroller.RegisterModel(s, "model-b", info2)
+	if err == nil {
+		t.Fatalf("expected error for duplicate model name, got nil")
+	}
+	if !contains(err.Error(), "already registered") {
+		t.Fatalf("expected 'already registered' in error, got %q", err.Error())
+	}
+}
+
+func TestRegisterModel_EmptyNameRejected(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+
+	info := store.ModelInfo{
+		Version: "v1",
+	}
+
+	err := registrycontroller.RegisterModel(s, "model-x", info)
+	if err == nil {
+		t.Fatalf("expected error for empty model name, got nil")
+	}
+	if !contains(err.Error(), "model name cannot be empty") {
+		t.Fatalf("expected 'model name cannot be empty' in error, got %q", err.Error())
+	}
+}
+
+func TestGetModelByName(t *testing.T) {
+	s := newTestStore(t)
+	defer s.Close()
+
+	modelID := "model-1"
+	info := store.ModelInfo{
+		Name:    "my-model",
+		Version: "v1",
+	}
+
+	if err := registrycontroller.RegisterModel(s, modelID, info); err != nil {
+		t.Fatalf("RegisterModel() error = %v", err)
+	}
+
+	got, found, err := registrycontroller.GetModelByName(s, "my-model")
+	if err != nil {
+		t.Fatalf("GetModelByName() error = %v", err)
+	}
+	if !found {
+		t.Fatalf("GetModelByName() found = false, want true")
+	}
+	if got.ID != modelID {
+		t.Fatalf("GetModelByName() ID = %q, want %q", got.ID, modelID)
+	}
+	if got.Name != info.Name {
+		t.Fatalf("GetModelByName() Name = %q, want %q", got.Name, info.Name)
+	}
+
+	// Non-existent name should return false.
+	_, found, err = registrycontroller.GetModelByName(s, "does-not-exist")
+	if err != nil {
+		t.Fatalf("GetModelByName() error for missing name = %v", err)
+	}
+	if found {
+		t.Fatalf("GetModelByName() found = true for non-existent name, want false")
+	}
+}
+
+// contains is a small helper to check if a string contains a substring.
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsSubstr(s, substr))
+}
+
+func containsSubstr(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}

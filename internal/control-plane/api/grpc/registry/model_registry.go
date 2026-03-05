@@ -3,6 +3,7 @@ package grpcregistry
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
@@ -27,9 +28,14 @@ func NewModelRegistryServer(s *store.Store) modelpb.ModelRegistryAPIServer {
 }
 
 // RegisterModel registers a new model.
+// Returns codes.InvalidArgument if the request is nil or the model name is empty.
+// Returns codes.AlreadyExists if a model with the same name is already registered.
 func (s *modelRegistryServer) RegisterModel(ctx context.Context, req *modelpb.ModelInfo) (*modelpb.BoolResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request cannot be nil")
+	}
+	if req.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "model name cannot be empty")
 	}
 
 	// Generate a new UUID for the model, ignoring any ID in the request
@@ -40,7 +46,10 @@ func (s *modelRegistryServer) RegisterModel(ctx context.Context, req *modelpb.Mo
 	modelInfo.ID = modelID
 
 	if err := registrycontroller.RegisterModel(s.store, modelID, modelInfo); err != nil {
-		return &modelpb.BoolResponse{Success: false}, status.Error(codes.Internal, err.Error())
+		if strings.Contains(err.Error(), "already registered") {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &modelpb.BoolResponse{Success: true}, nil
