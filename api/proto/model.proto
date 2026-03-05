@@ -29,6 +29,7 @@ message ModelInfo {
     int64 model_size = 6;
     int32 replicas = 7;
     string input_format = 8;
+    string namespace = 9;
 }
 
 message UpdateModelRequest {
@@ -40,6 +41,7 @@ message UpdateModelRequest {
     int64 model_size = 6;
     int32 replicas = 7;
     string input_format = 8;
+    string namespace = 9;
 }
 
 message ModelID {
@@ -52,6 +54,7 @@ message ListModelsResponse {
 
 message ModelName {
     string name = 1;
+    string namespace = 2;
 }
 
 message ReplicaStatusBreakdown {
