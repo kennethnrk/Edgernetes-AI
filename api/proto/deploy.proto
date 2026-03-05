@@ -19,7 +19,7 @@ message DeployModelRequest {
     string model_type = 5;
     int64 model_size = 6;
     int32 instance_count = 7;
-    // Field 8 reserved (previously download_url, now carried by file_path).
+    string namespace = 8;
     string sha256_hash = 9;
 }
 

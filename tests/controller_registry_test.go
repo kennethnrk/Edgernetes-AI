@@ -355,8 +355,9 @@ func TestRegisterModel_DuplicateNameRejected(t *testing.T) {
 	defer s.Close()
 
 	info := store.ModelInfo{
-		Name:    "duplicate-name",
-		Version: "v1",
+		Name:      "duplicate-name",
+		Namespace: "default",
+		Version:   "v1",
 	}
 
 	// First registration should succeed.
@@ -366,8 +367,9 @@ func TestRegisterModel_DuplicateNameRejected(t *testing.T) {
 
 	// Second registration with the same name but a different ID should fail.
 	info2 := store.ModelInfo{
-		Name:    "duplicate-name",
-		Version: "v2",
+		Name:      "duplicate-name",
+		Namespace: "default",
+		Version:   "v2",
 	}
 	err := registrycontroller.RegisterModel(s, "model-b", info2)
 	if err == nil {
@@ -395,41 +397,42 @@ func TestRegisterModel_EmptyNameRejected(t *testing.T) {
 	}
 }
 
-func TestGetModelByName(t *testing.T) {
+func TestGetModelByNamespaceAndName(t *testing.T) {
 	s := newTestStore(t)
 	defer s.Close()
 
 	modelID := "model-1"
 	info := store.ModelInfo{
-		Name:    "my-model",
-		Version: "v1",
+		Name:      "my-model",
+		Namespace: "default",
+		Version:   "v1",
 	}
 
 	if err := registrycontroller.RegisterModel(s, modelID, info); err != nil {
 		t.Fatalf("RegisterModel() error = %v", err)
 	}
 
-	got, found, err := registrycontroller.GetModelByName(s, "my-model")
+	got, found, err := registrycontroller.GetModelByNamespaceAndName(s, "default", "my-model")
 	if err != nil {
-		t.Fatalf("GetModelByName() error = %v", err)
+		t.Fatalf("GetModelByNamespaceAndName() error = %v", err)
 	}
 	if !found {
-		t.Fatalf("GetModelByName() found = false, want true")
+		t.Fatalf("GetModelByNamespaceAndName() found = false, want true")
 	}
 	if got.ID != modelID {
-		t.Fatalf("GetModelByName() ID = %q, want %q", got.ID, modelID)
+		t.Fatalf("GetModelByNamespaceAndName() ID = %q, want %q", got.ID, modelID)
 	}
 	if got.Name != info.Name {
-		t.Fatalf("GetModelByName() Name = %q, want %q", got.Name, info.Name)
+		t.Fatalf("GetModelByNamespaceAndName() Name = %q, want %q", got.Name, info.Name)
 	}
 
 	// Non-existent name should return false.
-	_, found, err = registrycontroller.GetModelByName(s, "does-not-exist")
+	_, found, err = registrycontroller.GetModelByNamespaceAndName(s, "default", "does-not-exist")
 	if err != nil {
-		t.Fatalf("GetModelByName() error for missing name = %v", err)
+		t.Fatalf("GetModelByNamespaceAndName() error for missing name = %v", err)
 	}
 	if found {
-		t.Fatalf("GetModelByName() found = true for non-existent name, want false")
+		t.Fatalf("GetModelByNamespaceAndName() found = true for non-existent name, want false")
 	}
 }
 
