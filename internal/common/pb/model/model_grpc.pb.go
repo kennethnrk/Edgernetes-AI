@@ -19,11 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ModelRegistryAPI_RegisterModel_FullMethodName   = "/modelRegistryAPI.ModelRegistryAPI/RegisterModel"
-	ModelRegistryAPI_DeRegisterModel_FullMethodName = "/modelRegistryAPI.ModelRegistryAPI/DeRegisterModel"
-	ModelRegistryAPI_UpdateModel_FullMethodName     = "/modelRegistryAPI.ModelRegistryAPI/UpdateModel"
-	ModelRegistryAPI_GetModel_FullMethodName        = "/modelRegistryAPI.ModelRegistryAPI/GetModel"
-	ModelRegistryAPI_ListModels_FullMethodName      = "/modelRegistryAPI.ModelRegistryAPI/ListModels"
+	ModelRegistryAPI_RegisterModel_FullMethodName       = "/modelRegistryAPI.ModelRegistryAPI/RegisterModel"
+	ModelRegistryAPI_DeRegisterModel_FullMethodName     = "/modelRegistryAPI.ModelRegistryAPI/DeRegisterModel"
+	ModelRegistryAPI_UpdateModel_FullMethodName         = "/modelRegistryAPI.ModelRegistryAPI/UpdateModel"
+	ModelRegistryAPI_GetModel_FullMethodName            = "/modelRegistryAPI.ModelRegistryAPI/GetModel"
+	ModelRegistryAPI_ListModels_FullMethodName          = "/modelRegistryAPI.ModelRegistryAPI/ListModels"
+	ModelRegistryAPI_GetModelStatus_FullMethodName      = "/modelRegistryAPI.ModelRegistryAPI/GetModelStatus"
+	ModelRegistryAPI_GetNodesByModelName_FullMethodName = "/modelRegistryAPI.ModelRegistryAPI/GetNodesByModelName"
 )
 
 // ModelRegistryAPIClient is the client API for ModelRegistryAPI service.
@@ -35,6 +37,8 @@ type ModelRegistryAPIClient interface {
 	UpdateModel(ctx context.Context, in *UpdateModelRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	GetModel(ctx context.Context, in *ModelID, opts ...grpc.CallOption) (*ModelInfo, error)
 	ListModels(ctx context.Context, in *None, opts ...grpc.CallOption) (*ListModelsResponse, error)
+	GetModelStatus(ctx context.Context, in *ModelName, opts ...grpc.CallOption) (*ModelStatusResponse, error)
+	GetNodesByModelName(ctx context.Context, in *ModelName, opts ...grpc.CallOption) (*ModelNodesResponse, error)
 }
 
 type modelRegistryAPIClient struct {
@@ -95,6 +99,26 @@ func (c *modelRegistryAPIClient) ListModels(ctx context.Context, in *None, opts 
 	return out, nil
 }
 
+func (c *modelRegistryAPIClient) GetModelStatus(ctx context.Context, in *ModelName, opts ...grpc.CallOption) (*ModelStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelStatusResponse)
+	err := c.cc.Invoke(ctx, ModelRegistryAPI_GetModelStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelRegistryAPIClient) GetNodesByModelName(ctx context.Context, in *ModelName, opts ...grpc.CallOption) (*ModelNodesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelNodesResponse)
+	err := c.cc.Invoke(ctx, ModelRegistryAPI_GetNodesByModelName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ModelRegistryAPIServer is the server API for ModelRegistryAPI service.
 // All implementations must embed UnimplementedModelRegistryAPIServer
 // for forward compatibility.
@@ -104,6 +128,8 @@ type ModelRegistryAPIServer interface {
 	UpdateModel(context.Context, *UpdateModelRequest) (*BoolResponse, error)
 	GetModel(context.Context, *ModelID) (*ModelInfo, error)
 	ListModels(context.Context, *None) (*ListModelsResponse, error)
+	GetModelStatus(context.Context, *ModelName) (*ModelStatusResponse, error)
+	GetNodesByModelName(context.Context, *ModelName) (*ModelNodesResponse, error)
 	mustEmbedUnimplementedModelRegistryAPIServer()
 }
 
@@ -128,6 +154,12 @@ func (UnimplementedModelRegistryAPIServer) GetModel(context.Context, *ModelID) (
 }
 func (UnimplementedModelRegistryAPIServer) ListModels(context.Context, *None) (*ListModelsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListModels not implemented")
+}
+func (UnimplementedModelRegistryAPIServer) GetModelStatus(context.Context, *ModelName) (*ModelStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetModelStatus not implemented")
+}
+func (UnimplementedModelRegistryAPIServer) GetNodesByModelName(context.Context, *ModelName) (*ModelNodesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetNodesByModelName not implemented")
 }
 func (UnimplementedModelRegistryAPIServer) mustEmbedUnimplementedModelRegistryAPIServer() {}
 func (UnimplementedModelRegistryAPIServer) testEmbeddedByValue()                          {}
@@ -240,6 +272,42 @@ func _ModelRegistryAPI_ListModels_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ModelRegistryAPI_GetModelStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelRegistryAPIServer).GetModelStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelRegistryAPI_GetModelStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelRegistryAPIServer).GetModelStatus(ctx, req.(*ModelName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelRegistryAPI_GetNodesByModelName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelRegistryAPIServer).GetNodesByModelName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelRegistryAPI_GetNodesByModelName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelRegistryAPIServer).GetNodesByModelName(ctx, req.(*ModelName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ModelRegistryAPI_ServiceDesc is the grpc.ServiceDesc for ModelRegistryAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +334,14 @@ var ModelRegistryAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListModels",
 			Handler:    _ModelRegistryAPI_ListModels_Handler,
+		},
+		{
+			MethodName: "GetModelStatus",
+			Handler:    _ModelRegistryAPI_GetModelStatus_Handler,
+		},
+		{
+			MethodName: "GetNodesByModelName",
+			Handler:    _ModelRegistryAPI_GetNodesByModelName_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

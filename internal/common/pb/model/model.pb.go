@@ -389,6 +389,314 @@ func (x *ListModelsResponse) GetModels() []*ModelInfo {
 	return nil
 }
 
+type ModelName struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelName) Reset() {
+	*x = ModelName{}
+	mi := &file_api_proto_model_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelName) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelName) ProtoMessage() {}
+
+func (x *ModelName) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_model_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelName.ProtoReflect.Descriptor instead.
+func (*ModelName) Descriptor() ([]byte, []int) {
+	return file_api_proto_model_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ModelName) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type ReplicaStatusBreakdown struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Running       int32                  `protobuf:"varint,1,opt,name=running,proto3" json:"running,omitempty"`
+	Pending       int32                  `protobuf:"varint,2,opt,name=pending,proto3" json:"pending,omitempty"`
+	Failed        int32                  `protobuf:"varint,3,opt,name=failed,proto3" json:"failed,omitempty"`
+	Unknown       int32                  `protobuf:"varint,4,opt,name=unknown,proto3" json:"unknown,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReplicaStatusBreakdown) Reset() {
+	*x = ReplicaStatusBreakdown{}
+	mi := &file_api_proto_model_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReplicaStatusBreakdown) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReplicaStatusBreakdown) ProtoMessage() {}
+
+func (x *ReplicaStatusBreakdown) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_model_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReplicaStatusBreakdown.ProtoReflect.Descriptor instead.
+func (*ReplicaStatusBreakdown) Descriptor() ([]byte, []int) {
+	return file_api_proto_model_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ReplicaStatusBreakdown) GetRunning() int32 {
+	if x != nil {
+		return x.Running
+	}
+	return 0
+}
+
+func (x *ReplicaStatusBreakdown) GetPending() int32 {
+	if x != nil {
+		return x.Pending
+	}
+	return 0
+}
+
+func (x *ReplicaStatusBreakdown) GetFailed() int32 {
+	if x != nil {
+		return x.Failed
+	}
+	return 0
+}
+
+func (x *ReplicaStatusBreakdown) GetUnknown() int32 {
+	if x != nil {
+		return x.Unknown
+	}
+	return 0
+}
+
+type ModelStatusResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	ModelName     string                  `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ModelId       string                  `protobuf:"bytes,2,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	Status        string                  `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	TotalReplicas int32                   `protobuf:"varint,4,opt,name=total_replicas,json=totalReplicas,proto3" json:"total_replicas,omitempty"`
+	Breakdown     *ReplicaStatusBreakdown `protobuf:"bytes,5,opt,name=breakdown,proto3" json:"breakdown,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelStatusResponse) Reset() {
+	*x = ModelStatusResponse{}
+	mi := &file_api_proto_model_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelStatusResponse) ProtoMessage() {}
+
+func (x *ModelStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_model_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelStatusResponse.ProtoReflect.Descriptor instead.
+func (*ModelStatusResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_model_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ModelStatusResponse) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *ModelStatusResponse) GetModelId() string {
+	if x != nil {
+		return x.ModelId
+	}
+	return ""
+}
+
+func (x *ModelStatusResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ModelStatusResponse) GetTotalReplicas() int32 {
+	if x != nil {
+		return x.TotalReplicas
+	}
+	return 0
+}
+
+func (x *ModelStatusResponse) GetBreakdown() *ReplicaStatusBreakdown {
+	if x != nil {
+		return x.Breakdown
+	}
+	return nil
+}
+
+type NodeAddress struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Ip            string                 `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port          int32                  `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeAddress) Reset() {
+	*x = NodeAddress{}
+	mi := &file_api_proto_model_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeAddress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeAddress) ProtoMessage() {}
+
+func (x *NodeAddress) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_model_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeAddress.ProtoReflect.Descriptor instead.
+func (*NodeAddress) Descriptor() ([]byte, []int) {
+	return file_api_proto_model_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *NodeAddress) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *NodeAddress) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *NodeAddress) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+type ModelNodesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelName     string                 `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ModelId       string                 `protobuf:"bytes,2,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	Nodes         []*NodeAddress         `protobuf:"bytes,3,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelNodesResponse) Reset() {
+	*x = ModelNodesResponse{}
+	mi := &file_api_proto_model_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelNodesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelNodesResponse) ProtoMessage() {}
+
+func (x *ModelNodesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_model_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelNodesResponse.ProtoReflect.Descriptor instead.
+func (*ModelNodesResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_model_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ModelNodesResponse) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *ModelNodesResponse) GetModelId() string {
+	if x != nil {
+		return x.ModelId
+	}
+	return ""
+}
+
+func (x *ModelNodesResponse) GetNodes() []*NodeAddress {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
 var File_api_proto_model_proto protoreflect.FileDescriptor
 
 const file_api_proto_model_proto_rawDesc = "" +
@@ -422,14 +730,39 @@ const file_api_proto_model_proto_rawDesc = "" +
 	"\aModelID\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"I\n" +
 	"\x12ListModelsResponse\x123\n" +
-	"\x06models\x18\x01 \x03(\v2\x1b.modelRegistryAPI.ModelInfoR\x06models2\x93\x03\n" +
+	"\x06models\x18\x01 \x03(\v2\x1b.modelRegistryAPI.ModelInfoR\x06models\"\x1f\n" +
+	"\tModelName\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"~\n" +
+	"\x16ReplicaStatusBreakdown\x12\x18\n" +
+	"\arunning\x18\x01 \x01(\x05R\arunning\x12\x18\n" +
+	"\apending\x18\x02 \x01(\x05R\apending\x12\x16\n" +
+	"\x06failed\x18\x03 \x01(\x05R\x06failed\x12\x18\n" +
+	"\aunknown\x18\x04 \x01(\x05R\aunknown\"\xd6\x01\n" +
+	"\x13ModelStatusResponse\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x01 \x01(\tR\tmodelName\x12\x19\n" +
+	"\bmodel_id\x18\x02 \x01(\tR\amodelId\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12%\n" +
+	"\x0etotal_replicas\x18\x04 \x01(\x05R\rtotalReplicas\x12F\n" +
+	"\tbreakdown\x18\x05 \x01(\v2(.modelRegistryAPI.ReplicaStatusBreakdownR\tbreakdown\"J\n" +
+	"\vNodeAddress\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x0e\n" +
+	"\x02ip\x18\x02 \x01(\tR\x02ip\x12\x12\n" +
+	"\x04port\x18\x03 \x01(\x05R\x04port\"\x83\x01\n" +
+	"\x12ModelNodesResponse\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x01 \x01(\tR\tmodelName\x12\x19\n" +
+	"\bmodel_id\x18\x02 \x01(\tR\amodelId\x123\n" +
+	"\x05nodes\x18\x03 \x03(\v2\x1d.modelRegistryAPI.NodeAddressR\x05nodes2\xc3\x04\n" +
 	"\x10ModelRegistryAPI\x12L\n" +
 	"\rRegisterModel\x12\x1b.modelRegistryAPI.ModelInfo\x1a\x1e.modelRegistryAPI.BoolResponse\x12L\n" +
 	"\x0fDeRegisterModel\x12\x19.modelRegistryAPI.ModelID\x1a\x1e.modelRegistryAPI.BoolResponse\x12S\n" +
 	"\vUpdateModel\x12$.modelRegistryAPI.UpdateModelRequest\x1a\x1e.modelRegistryAPI.BoolResponse\x12B\n" +
 	"\bGetModel\x12\x19.modelRegistryAPI.ModelID\x1a\x1b.modelRegistryAPI.ModelInfo\x12J\n" +
 	"\n" +
-	"ListModels\x12\x16.modelRegistryAPI.None\x1a$.modelRegistryAPI.ListModelsResponseB\"Z internal/common/pb/model;modelpbb\x06proto3"
+	"ListModels\x12\x16.modelRegistryAPI.None\x1a$.modelRegistryAPI.ListModelsResponse\x12T\n" +
+	"\x0eGetModelStatus\x12\x1b.modelRegistryAPI.ModelName\x1a%.modelRegistryAPI.ModelStatusResponse\x12X\n" +
+	"\x13GetNodesByModelName\x12\x1b.modelRegistryAPI.ModelName\x1a$.modelRegistryAPI.ModelNodesResponseB\"Z internal/common/pb/model;modelpbb\x06proto3"
 
 var (
 	file_api_proto_model_proto_rawDescOnce sync.Once
@@ -443,32 +776,43 @@ func file_api_proto_model_proto_rawDescGZIP() []byte {
 	return file_api_proto_model_proto_rawDescData
 }
 
-var file_api_proto_model_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_api_proto_model_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_proto_model_proto_goTypes = []any{
-	(*None)(nil),               // 0: modelRegistryAPI.None
-	(*BoolResponse)(nil),       // 1: modelRegistryAPI.BoolResponse
-	(*ModelInfo)(nil),          // 2: modelRegistryAPI.ModelInfo
-	(*UpdateModelRequest)(nil), // 3: modelRegistryAPI.UpdateModelRequest
-	(*ModelID)(nil),            // 4: modelRegistryAPI.ModelID
-	(*ListModelsResponse)(nil), // 5: modelRegistryAPI.ListModelsResponse
+	(*None)(nil),                   // 0: modelRegistryAPI.None
+	(*BoolResponse)(nil),           // 1: modelRegistryAPI.BoolResponse
+	(*ModelInfo)(nil),              // 2: modelRegistryAPI.ModelInfo
+	(*UpdateModelRequest)(nil),     // 3: modelRegistryAPI.UpdateModelRequest
+	(*ModelID)(nil),                // 4: modelRegistryAPI.ModelID
+	(*ListModelsResponse)(nil),     // 5: modelRegistryAPI.ListModelsResponse
+	(*ModelName)(nil),              // 6: modelRegistryAPI.ModelName
+	(*ReplicaStatusBreakdown)(nil), // 7: modelRegistryAPI.ReplicaStatusBreakdown
+	(*ModelStatusResponse)(nil),    // 8: modelRegistryAPI.ModelStatusResponse
+	(*NodeAddress)(nil),            // 9: modelRegistryAPI.NodeAddress
+	(*ModelNodesResponse)(nil),     // 10: modelRegistryAPI.ModelNodesResponse
 }
 var file_api_proto_model_proto_depIdxs = []int32{
-	2, // 0: modelRegistryAPI.ListModelsResponse.models:type_name -> modelRegistryAPI.ModelInfo
-	2, // 1: modelRegistryAPI.ModelRegistryAPI.RegisterModel:input_type -> modelRegistryAPI.ModelInfo
-	4, // 2: modelRegistryAPI.ModelRegistryAPI.DeRegisterModel:input_type -> modelRegistryAPI.ModelID
-	3, // 3: modelRegistryAPI.ModelRegistryAPI.UpdateModel:input_type -> modelRegistryAPI.UpdateModelRequest
-	4, // 4: modelRegistryAPI.ModelRegistryAPI.GetModel:input_type -> modelRegistryAPI.ModelID
-	0, // 5: modelRegistryAPI.ModelRegistryAPI.ListModels:input_type -> modelRegistryAPI.None
-	1, // 6: modelRegistryAPI.ModelRegistryAPI.RegisterModel:output_type -> modelRegistryAPI.BoolResponse
-	1, // 7: modelRegistryAPI.ModelRegistryAPI.DeRegisterModel:output_type -> modelRegistryAPI.BoolResponse
-	1, // 8: modelRegistryAPI.ModelRegistryAPI.UpdateModel:output_type -> modelRegistryAPI.BoolResponse
-	2, // 9: modelRegistryAPI.ModelRegistryAPI.GetModel:output_type -> modelRegistryAPI.ModelInfo
-	5, // 10: modelRegistryAPI.ModelRegistryAPI.ListModels:output_type -> modelRegistryAPI.ListModelsResponse
-	6, // [6:11] is the sub-list for method output_type
-	1, // [1:6] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2,  // 0: modelRegistryAPI.ListModelsResponse.models:type_name -> modelRegistryAPI.ModelInfo
+	7,  // 1: modelRegistryAPI.ModelStatusResponse.breakdown:type_name -> modelRegistryAPI.ReplicaStatusBreakdown
+	9,  // 2: modelRegistryAPI.ModelNodesResponse.nodes:type_name -> modelRegistryAPI.NodeAddress
+	2,  // 3: modelRegistryAPI.ModelRegistryAPI.RegisterModel:input_type -> modelRegistryAPI.ModelInfo
+	4,  // 4: modelRegistryAPI.ModelRegistryAPI.DeRegisterModel:input_type -> modelRegistryAPI.ModelID
+	3,  // 5: modelRegistryAPI.ModelRegistryAPI.UpdateModel:input_type -> modelRegistryAPI.UpdateModelRequest
+	4,  // 6: modelRegistryAPI.ModelRegistryAPI.GetModel:input_type -> modelRegistryAPI.ModelID
+	0,  // 7: modelRegistryAPI.ModelRegistryAPI.ListModels:input_type -> modelRegistryAPI.None
+	6,  // 8: modelRegistryAPI.ModelRegistryAPI.GetModelStatus:input_type -> modelRegistryAPI.ModelName
+	6,  // 9: modelRegistryAPI.ModelRegistryAPI.GetNodesByModelName:input_type -> modelRegistryAPI.ModelName
+	1,  // 10: modelRegistryAPI.ModelRegistryAPI.RegisterModel:output_type -> modelRegistryAPI.BoolResponse
+	1,  // 11: modelRegistryAPI.ModelRegistryAPI.DeRegisterModel:output_type -> modelRegistryAPI.BoolResponse
+	1,  // 12: modelRegistryAPI.ModelRegistryAPI.UpdateModel:output_type -> modelRegistryAPI.BoolResponse
+	2,  // 13: modelRegistryAPI.ModelRegistryAPI.GetModel:output_type -> modelRegistryAPI.ModelInfo
+	5,  // 14: modelRegistryAPI.ModelRegistryAPI.ListModels:output_type -> modelRegistryAPI.ListModelsResponse
+	8,  // 15: modelRegistryAPI.ModelRegistryAPI.GetModelStatus:output_type -> modelRegistryAPI.ModelStatusResponse
+	10, // 16: modelRegistryAPI.ModelRegistryAPI.GetNodesByModelName:output_type -> modelRegistryAPI.ModelNodesResponse
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_model_proto_init() }
@@ -482,7 +826,7 @@ func file_api_proto_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_model_proto_rawDesc), len(file_api_proto_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

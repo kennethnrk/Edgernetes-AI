@@ -35,13 +35,3 @@ const (
 	StatusOffline Status = "offline"
 	StatusError   Status = "error"
 )
-
-type ModelReplicaStatus string
-
-const (
-	ModelReplicaStatusUnknown   ModelReplicaStatus = "unknown"
-	ModelReplicaStatusPending   ModelReplicaStatus = "pending"
-	ModelReplicaStatusRunning   ModelReplicaStatus = "running"
-	ModelReplicaStatusCompleted ModelReplicaStatus = "completed"
-	ModelReplicaStatusFailed    ModelReplicaStatus = "failed"
-)

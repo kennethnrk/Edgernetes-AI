@@ -89,8 +89,6 @@ func convertStringToReplicaStatus(statusStr string) constants.ModelReplicaStatus
 		return constants.ModelReplicaStatusPending
 	case "running":
 		return constants.ModelReplicaStatusRunning
-	case "completed":
-		return constants.ModelReplicaStatusCompleted
 	case "failed":
 		return constants.ModelReplicaStatusFailed
 	case "unknown":

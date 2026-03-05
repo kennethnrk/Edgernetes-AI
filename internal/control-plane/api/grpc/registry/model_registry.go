@@ -9,6 +9,7 @@ import (
 	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	modelpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/model"
 	registrycontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/registry"
+	statuscontroller "github.com/kennethnrk/edgernetes-ai/internal/control-plane/controller/status"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -112,6 +113,68 @@ func (s *modelRegistryServer) ListModels(ctx context.Context, req *modelpb.None)
 	}
 
 	return &modelpb.ListModelsResponse{Models: protoModels}, nil
+}
+
+// GetModelStatus retrieves the status and replica breakdown for a model.
+func (s *modelRegistryServer) GetModelStatus(ctx context.Context, req *modelpb.ModelName) (*modelpb.ModelStatusResponse, error) {
+	if req == nil || req.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "model name cannot be empty")
+	}
+
+	result, err := statuscontroller.GetModelStatus(s.store, req.GetName())
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &modelpb.ModelStatusResponse{
+		ModelName:     result.ModelName,
+		ModelId:       result.ModelID,
+		Status:        string(result.Status),
+		TotalReplicas: result.TotalReplicas,
+		Breakdown: &modelpb.ReplicaStatusBreakdown{
+			Running: result.Breakdown.Running,
+			Pending: result.Breakdown.Pending,
+			Failed:  result.Breakdown.Failed,
+			Unknown: result.Breakdown.Unknown,
+		},
+	}, nil
+}
+
+// GetNodesByModelName retrieves all node IPs hosting a specific model.
+func (s *modelRegistryServer) GetNodesByModelName(ctx context.Context, req *modelpb.ModelName) (*modelpb.ModelNodesResponse, error) {
+	if req == nil || req.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "model name cannot be empty")
+	}
+
+	result, err := registrycontroller.GetNodesByModelName(s.store, req.GetName())
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	protoNodes := make([]*modelpb.NodeAddress, len(result))
+	for i, node := range result {
+		protoNodes[i] = &modelpb.NodeAddress{
+			NodeId: node.NodeID,
+			Ip:     node.IP,
+			Port:   node.Port,
+		}
+	}
+
+	// We still need the model ID for the response, so look it up again quickly,
+	// or we can fetch it via another GetModelByName call here.
+	modelInfo, _, _ := registrycontroller.GetModelByName(s.store, req.GetName())
+
+	return &modelpb.ModelNodesResponse{
+		ModelName: req.GetName(),
+		ModelId:   modelInfo.ID,
+		Nodes:     protoNodes,
+	}, nil
 }
 
 // protoToStoreModelInfo converts a proto ModelInfo to a store ModelInfo.

@@ -5,8 +5,15 @@ import (
 	"errors"
 	"fmt"
 
+	replicascheduler "github.com/kennethnrk/edgernetes-ai/internal/control-plane/scheduler/replica"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 )
+
+type NodeAddress struct {
+	NodeID string
+	IP     string
+	Port   int32
+}
 
 // RegisterModel stores a new ModelInfo under the given modelID.
 // It enforces that the model name is non-empty and unique across all
@@ -140,4 +147,55 @@ func GetModelByName(s *store.Store, name string) (store.ModelInfo, bool, error) 
 	}
 
 	return store.ModelInfo{}, false, nil
+}
+
+func GetNodesByModelName(s *store.Store, modelName string) ([]NodeAddress, error) {
+	if modelName == "" {
+		return nil, fmt.Errorf("model name cannot be empty")
+	}
+
+	modelInfo, found, err := GetModelByName(s, modelName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get model by name: %w", err)
+	}
+	if !found {
+		return nil, fmt.Errorf("model not found")
+	}
+
+	replicas, err := replicascheduler.ListReplicasByModelID(s, modelInfo.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list replicas: %w", err)
+	}
+
+	// create a map of replica IDs
+	replicaIDMap := make(map[string]bool)
+	for _, req := range replicas {
+		replicaIDMap[req.ID] = true
+	}
+
+	var nodeAddresses []NodeAddress
+	nodeSeen := make(map[string]bool)
+
+	nodes, err := ListNodes(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list nodes: %w", err)
+	}
+
+	for _, node := range nodes {
+		for _, assignedModel := range node.AssignedModels {
+			if replicaIDMap[assignedModel] {
+				if !nodeSeen[node.ID] {
+					nodeAddresses = append(nodeAddresses, NodeAddress{
+						NodeID: node.ID,
+						IP:     node.IP,
+						Port:   int32(node.Port),
+					})
+					nodeSeen[node.ID] = true
+				}
+				break
+			}
+		}
+	}
+
+	return nodeAddresses, nil
 }
