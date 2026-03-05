@@ -9,6 +9,7 @@ import (
 type ModelInfo struct {
 	ID             string              `json:"id"`
 	Name           string              `json:"name"`
+	Namespace      string              `json:"namespace"`
 	Version        string              `json:"version"`
 	FilePath       string              `json:"file_path"`
 	ModelType      constants.ModelType `json:"model_type"`

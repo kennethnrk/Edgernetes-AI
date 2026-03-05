@@ -111,6 +111,7 @@ type ModelInfo struct {
 	ModelSize     int64                  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
 	Replicas      int32                  `protobuf:"varint,7,opt,name=replicas,proto3" json:"replicas,omitempty"`
 	InputFormat   string                 `protobuf:"bytes,8,opt,name=input_format,json=inputFormat,proto3" json:"input_format,omitempty"`
+	Namespace     string                 `protobuf:"bytes,9,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,6 +202,13 @@ func (x *ModelInfo) GetInputFormat() string {
 	return ""
 }
 
+func (x *ModelInfo) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
 type UpdateModelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -211,6 +219,7 @@ type UpdateModelRequest struct {
 	ModelSize     int64                  `protobuf:"varint,6,opt,name=model_size,json=modelSize,proto3" json:"model_size,omitempty"`
 	Replicas      int32                  `protobuf:"varint,7,opt,name=replicas,proto3" json:"replicas,omitempty"`
 	InputFormat   string                 `protobuf:"bytes,8,opt,name=input_format,json=inputFormat,proto3" json:"input_format,omitempty"`
+	Namespace     string                 `protobuf:"bytes,9,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -297,6 +306,13 @@ func (x *UpdateModelRequest) GetReplicas() int32 {
 func (x *UpdateModelRequest) GetInputFormat() string {
 	if x != nil {
 		return x.InputFormat
+	}
+	return ""
+}
+
+func (x *UpdateModelRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
 	}
 	return ""
 }
@@ -392,6 +408,7 @@ func (x *ListModelsResponse) GetModels() []*ModelInfo {
 type ModelName struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Namespace     string                 `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,6 +446,13 @@ func (*ModelName) Descriptor() ([]byte, []int) {
 func (x *ModelName) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *ModelName) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
 	}
 	return ""
 }
@@ -704,7 +728,7 @@ const file_api_proto_model_proto_rawDesc = "" +
 	"\x15api/proto/model.proto\x12\x10modelRegistryAPI\"\x06\n" +
 	"\x04None\"(\n" +
 	"\fBoolResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xe3\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x81\x02\n" +
 	"\tModelInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -715,7 +739,8 @@ const file_api_proto_model_proto_rawDesc = "" +
 	"\n" +
 	"model_size\x18\x06 \x01(\x03R\tmodelSize\x12\x1a\n" +
 	"\breplicas\x18\a \x01(\x05R\breplicas\x12!\n" +
-	"\finput_format\x18\b \x01(\tR\vinputFormat\"\xec\x01\n" +
+	"\finput_format\x18\b \x01(\tR\vinputFormat\x12\x1c\n" +
+	"\tnamespace\x18\t \x01(\tR\tnamespace\"\x8a\x02\n" +
 	"\x12UpdateModelRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -726,13 +751,15 @@ const file_api_proto_model_proto_rawDesc = "" +
 	"\n" +
 	"model_size\x18\x06 \x01(\x03R\tmodelSize\x12\x1a\n" +
 	"\breplicas\x18\a \x01(\x05R\breplicas\x12!\n" +
-	"\finput_format\x18\b \x01(\tR\vinputFormat\"\x19\n" +
+	"\finput_format\x18\b \x01(\tR\vinputFormat\x12\x1c\n" +
+	"\tnamespace\x18\t \x01(\tR\tnamespace\"\x19\n" +
 	"\aModelID\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"I\n" +
 	"\x12ListModelsResponse\x123\n" +
-	"\x06models\x18\x01 \x03(\v2\x1b.modelRegistryAPI.ModelInfoR\x06models\"\x1f\n" +
+	"\x06models\x18\x01 \x03(\v2\x1b.modelRegistryAPI.ModelInfoR\x06models\"=\n" +
 	"\tModelName\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"~\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\tnamespace\x18\x02 \x01(\tR\tnamespace\"~\n" +
 	"\x16ReplicaStatusBreakdown\x12\x18\n" +
 	"\arunning\x18\x01 \x01(\x05R\arunning\x12\x18\n" +
 	"\apending\x18\x02 \x01(\x05R\apending\x12\x16\n" +

@@ -24,12 +24,12 @@ type ModelStatusResult struct {
 	Breakdown     ReplicaStatusBreakdown
 }
 
-func GetModelStatus(s *store.Store, modelName string) (ModelStatusResult, error) {
+func GetModelStatus(s *store.Store, namespace, modelName string) (ModelStatusResult, error) {
 	if modelName == "" {
 		return ModelStatusResult{}, fmt.Errorf("model name cannot be empty")
 	}
 
-	modelInfo, found, err := registrycontroller.GetModelByName(s, modelName)
+	modelInfo, found, err := registrycontroller.GetModelByNamespaceAndName(s, namespace, modelName)
 	if err != nil {
 		return ModelStatusResult{}, fmt.Errorf("failed to get model by name: %w", err)
 	}

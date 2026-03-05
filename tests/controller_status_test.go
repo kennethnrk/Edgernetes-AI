@@ -22,7 +22,7 @@ func TestGetModelStatus_AllRunning(t *testing.T) {
 	requireCreateReplica(t, s, "rep-2", modelID, constants.ModelReplicaStatusRunning)
 	requireCreateReplica(t, s, "rep-3", modelID, constants.ModelReplicaStatusRunning)
 
-	result, err := statuscontroller.GetModelStatus(s, "ModelA")
+	result, err := statuscontroller.GetModelStatus(s, "default", "ModelA")
 	if err != nil {
 		t.Fatalf("GetModelStatus unexpected error: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestGetModelStatus_AllPending(t *testing.T) {
 	requireCreateReplica(t, s, "rep-1", modelID, constants.ModelReplicaStatusPending)
 	requireCreateReplica(t, s, "rep-2", modelID, constants.ModelReplicaStatusPending)
 
-	result, err := statuscontroller.GetModelStatus(s, "ModelB")
+	result, err := statuscontroller.GetModelStatus(s, "default", "ModelB")
 	if err != nil {
 		t.Fatalf("GetModelStatus unexpected error: %v", err)
 	}
@@ -69,7 +69,7 @@ func TestGetModelStatus_PartialRunning(t *testing.T) {
 	requireCreateReplica(t, s, "rep-2", modelID, constants.ModelReplicaStatusPending)
 	requireCreateReplica(t, s, "rep-3", modelID, constants.ModelReplicaStatusFailed)
 
-	result, err := statuscontroller.GetModelStatus(s, "ModelC")
+	result, err := statuscontroller.GetModelStatus(s, "default", "ModelC")
 	if err != nil {
 		t.Fatalf("GetModelStatus unexpected error: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestGetModelStatus_AllFailed(t *testing.T) {
 	requireCreateReplica(t, s, "rep-1", modelID, constants.ModelReplicaStatusFailed)
 	requireCreateReplica(t, s, "rep-2", modelID, constants.ModelReplicaStatusFailed)
 
-	result, err := statuscontroller.GetModelStatus(s, "ModelD")
+	result, err := statuscontroller.GetModelStatus(s, "default", "ModelD")
 	if err != nil {
 		t.Fatalf("GetModelStatus unexpected error: %v", err)
 	}
@@ -106,7 +106,7 @@ func TestGetModelStatus_ModelNotFound(t *testing.T) {
 	s := newTestStore(t)
 	defer s.Close()
 
-	_, err := statuscontroller.GetModelStatus(s, "NonExistentModel")
+	_, err := statuscontroller.GetModelStatus(s, "default", "NonExistentModel")
 	if err == nil {
 		t.Errorf("expected error for non-existent model, got nil")
 	}
@@ -127,9 +127,13 @@ func TestGetNodesByModelName_Success(t *testing.T) {
 	requireRegisterNodeWithReplicas(t, s, "node-2", "10.0.0.2", 5000, []string{"rep-2", "rep-other"})
 	requireRegisterNodeWithReplicas(t, s, "node-3", "10.0.0.3", 5000, []string{"rep-other"})
 
-	nodes, err := registrycontroller.GetNodesByModelName(s, "ModelNodes")
+	returnedModelID, nodes, err := registrycontroller.GetNodesByModelName(s, "default", "ModelNodes")
 	if err != nil {
 		t.Fatalf("GetNodesByModelName unexpected error: %v", err)
+	}
+
+	if returnedModelID != modelID {
+		t.Fatalf("expected model ID %s, got %s", modelID, returnedModelID)
 	}
 
 	if len(nodes) != 2 {
@@ -156,7 +160,7 @@ func TestGetNodesByModelName_ModelNotFound(t *testing.T) {
 	s := newTestStore(t)
 	defer s.Close()
 
-	_, err := registrycontroller.GetNodesByModelName(s, "NonExistent")
+	_, _, err := registrycontroller.GetNodesByModelName(s, "default", "NonExistent")
 	if err == nil {
 		t.Errorf("expected error for non-existent model, got nil")
 	}
@@ -167,9 +171,10 @@ func TestGetNodesByModelName_ModelNotFound(t *testing.T) {
 func requireRegisterModel(t *testing.T, s *store.Store, id, name string, replicas int) {
 	t.Helper()
 	err := registrycontroller.RegisterModel(s, id, store.ModelInfo{
-		ID:       id,
-		Name:     name,
-		Replicas: replicas,
+		ID:        id,
+		Name:      name,
+		Namespace: "default",
+		Replicas:  replicas,
 	})
 	if err != nil {
 		t.Fatalf("failed to register test model: %v", err)

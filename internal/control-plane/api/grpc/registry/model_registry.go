@@ -117,11 +117,11 @@ func (s *modelRegistryServer) ListModels(ctx context.Context, req *modelpb.None)
 
 // GetModelStatus retrieves the status and replica breakdown for a model.
 func (s *modelRegistryServer) GetModelStatus(ctx context.Context, req *modelpb.ModelName) (*modelpb.ModelStatusResponse, error) {
-	if req == nil || req.GetName() == "" {
-		return nil, status.Error(codes.InvalidArgument, "model name cannot be empty")
+	if req == nil || req.GetName() == "" || req.GetNamespace() == "" {
+		return nil, status.Error(codes.InvalidArgument, "model name and namespace cannot be empty")
 	}
 
-	result, err := statuscontroller.GetModelStatus(s.store, req.GetName())
+	result, err := statuscontroller.GetModelStatus(s.store, req.GetNamespace(), req.GetName())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -145,11 +145,11 @@ func (s *modelRegistryServer) GetModelStatus(ctx context.Context, req *modelpb.M
 
 // GetNodesByModelName retrieves all node IPs hosting a specific model.
 func (s *modelRegistryServer) GetNodesByModelName(ctx context.Context, req *modelpb.ModelName) (*modelpb.ModelNodesResponse, error) {
-	if req == nil || req.GetName() == "" {
-		return nil, status.Error(codes.InvalidArgument, "model name cannot be empty")
+	if req == nil || req.GetName() == "" || req.GetNamespace() == "" {
+		return nil, status.Error(codes.InvalidArgument, "model name and namespace cannot be empty")
 	}
 
-	result, err := registrycontroller.GetNodesByModelName(s.store, req.GetName())
+	modelID, result, err := registrycontroller.GetNodesByModelName(s.store, req.GetNamespace(), req.GetName())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -166,13 +166,9 @@ func (s *modelRegistryServer) GetNodesByModelName(ctx context.Context, req *mode
 		}
 	}
 
-	// We still need the model ID for the response, so look it up again quickly,
-	// or we can fetch it via another GetModelByName call here.
-	modelInfo, _, _ := registrycontroller.GetModelByName(s.store, req.GetName())
-
 	return &modelpb.ModelNodesResponse{
 		ModelName: req.GetName(),
-		ModelId:   modelInfo.ID,
+		ModelId:   modelID,
 		Nodes:     protoNodes,
 	}, nil
 }
@@ -182,6 +178,7 @@ func protoToStoreModelInfo(pb *modelpb.ModelInfo) store.ModelInfo {
 	info := store.ModelInfo{
 		ID:        pb.GetId(),
 		Name:      pb.GetName(),
+		Namespace: pb.GetNamespace(),
 		Version:   pb.GetVersion(),
 		FilePath:  pb.GetFilePath(),
 		ModelType: constants.ModelType(pb.GetModelType()),
@@ -202,6 +199,7 @@ func updateRequestToStoreModelInfo(req *modelpb.UpdateModelRequest) store.ModelI
 	info := store.ModelInfo{
 		ID:        req.GetId(),
 		Name:      req.GetName(),
+		Namespace: req.GetNamespace(),
 		Version:   req.GetVersion(),
 		FilePath:  req.GetFilePath(),
 		ModelType: constants.ModelType(req.GetModelType()),
@@ -222,6 +220,7 @@ func storeModelInfoToProto(info *store.ModelInfo) *modelpb.ModelInfo {
 	pb := &modelpb.ModelInfo{
 		Id:          info.ID,
 		Name:        info.Name,
+		Namespace:   info.Namespace,
 		Version:     info.Version,
 		FilePath:    info.FilePath,
 		ModelType:   string(info.ModelType),

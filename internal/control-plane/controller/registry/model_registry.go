@@ -16,8 +16,8 @@ type NodeAddress struct {
 }
 
 // RegisterModel stores a new ModelInfo under the given modelID.
-// It enforces that the model name is non-empty and unique across all
-// registered models. Returns an error if a model with the same name
+// It enforces that the model name is non-empty and unique within its namespace
+// Returns an error if a model with the same name and namespace
 // already exists.
 func RegisterModel(s *store.Store, modelID string, info store.ModelInfo) error {
 	if modelID == "" {
@@ -27,11 +27,11 @@ func RegisterModel(s *store.Store, modelID string, info store.ModelInfo) error {
 		return errors.New("model name cannot be empty")
 	}
 
-	// Reject duplicate model names.
-	if existing, found, err := GetModelByName(s, info.Name); err != nil {
+	// Reject duplicate model names within the same namespace.
+	if existing, found, err := GetModelByNamespaceAndName(s, info.Namespace, info.Name); err != nil {
 		return fmt.Errorf("check model name uniqueness: %w", err)
 	} else if found {
-		return fmt.Errorf("model name %q is already registered (id=%s)", info.Name, existing.ID)
+		return fmt.Errorf("model name %q is already registered in namespace %q (id=%s)", info.Name, info.Namespace, existing.ID)
 	}
 
 	// Ensure the stored ModelInfo has a consistent ID.
@@ -120,9 +120,9 @@ func ListModels(s *store.Store) ([]store.ModelInfo, error) {
 	return models, nil
 }
 
-// GetModelByName looks up a model by its human-readable name.
-// Returns (zero ModelInfo, false, nil) if no model with that name exists.
-func GetModelByName(s *store.Store, name string) (store.ModelInfo, bool, error) {
+// GetModelByNamespaceAndName looks up a model by its namespace and human-readable name.
+// Returns (zero ModelInfo, false, nil) if no model with that namespace and name exists.
+func GetModelByNamespaceAndName(s *store.Store, namespace, name string) (store.ModelInfo, bool, error) {
 	if name == "" {
 		return store.ModelInfo{}, false, errors.New("model name cannot be empty")
 	}
@@ -141,7 +141,7 @@ func GetModelByName(s *store.Store, name string) (store.ModelInfo, bool, error) 
 		if err := json.Unmarshal(raw, &info); err != nil {
 			return store.ModelInfo{}, false, fmt.Errorf("unmarshal model %q: %w", k, err)
 		}
-		if info.Name == name {
+		if info.Namespace == namespace && info.Name == name {
 			return info, true, nil
 		}
 	}
@@ -149,22 +149,22 @@ func GetModelByName(s *store.Store, name string) (store.ModelInfo, bool, error) 
 	return store.ModelInfo{}, false, nil
 }
 
-func GetNodesByModelName(s *store.Store, modelName string) ([]NodeAddress, error) {
+func GetNodesByModelName(s *store.Store, namespace, modelName string) (string, []NodeAddress, error) {
 	if modelName == "" {
-		return nil, fmt.Errorf("model name cannot be empty")
+		return "", nil, fmt.Errorf("model name cannot be empty")
 	}
 
-	modelInfo, found, err := GetModelByName(s, modelName)
+	modelInfo, found, err := GetModelByNamespaceAndName(s, namespace, modelName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get model by name: %w", err)
+		return "", nil, fmt.Errorf("failed to get model by name: %w", err)
 	}
 	if !found {
-		return nil, fmt.Errorf("model not found")
+		return "", nil, fmt.Errorf("model not found")
 	}
 
 	replicas, err := replicascheduler.ListReplicasByModelID(s, modelInfo.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list replicas: %w", err)
+		return "", nil, fmt.Errorf("failed to list replicas: %w", err)
 	}
 
 	// create a map of replica IDs
@@ -178,7 +178,7 @@ func GetNodesByModelName(s *store.Store, modelName string) ([]NodeAddress, error
 
 	nodes, err := ListNodes(s)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list nodes: %w", err)
+		return "", nil, fmt.Errorf("failed to list nodes: %w", err)
 	}
 
 	for _, node := range nodes {
@@ -197,5 +197,5 @@ func GetNodesByModelName(s *store.Store, modelName string) ([]NodeAddress, error
 		}
 	}
 
-	return nodeAddresses, nil
+	return modelInfo.ID, nodeAddresses, nil
 }
