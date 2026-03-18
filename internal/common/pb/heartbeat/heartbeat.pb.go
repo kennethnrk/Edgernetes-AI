@@ -22,10 +22,11 @@ const (
 )
 
 type RequestHeartbeatRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeID        string                 `protobuf:"bytes,1,opt,name=nodeID,proto3" json:"nodeID,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	NodeID           string                 `protobuf:"bytes,1,opt,name=nodeID,proto3" json:"nodeID,omitempty"`
+	ServiceEndpoints []*ServiceEndpoints    `protobuf:"bytes,2,rep,name=service_endpoints,json=serviceEndpoints,proto3" json:"service_endpoints,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *RequestHeartbeatRequest) Reset() {
@@ -65,6 +66,149 @@ func (x *RequestHeartbeatRequest) GetNodeID() string {
 	return ""
 }
 
+func (x *RequestHeartbeatRequest) GetServiceEndpoints() []*ServiceEndpoints {
+	if x != nil {
+		return x.ServiceEndpoints
+	}
+	return nil
+}
+
+type ServiceEndpoints struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelId       string                 `protobuf:"bytes,1,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	Endpoints     []*EndpointDetail      `protobuf:"bytes,2,rep,name=endpoints,proto3" json:"endpoints,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ServiceEndpoints) Reset() {
+	*x = ServiceEndpoints{}
+	mi := &file_api_proto_heartbeat_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ServiceEndpoints) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServiceEndpoints) ProtoMessage() {}
+
+func (x *ServiceEndpoints) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_heartbeat_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServiceEndpoints.ProtoReflect.Descriptor instead.
+func (*ServiceEndpoints) Descriptor() ([]byte, []int) {
+	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ServiceEndpoints) GetModelId() string {
+	if x != nil {
+		return x.ModelId
+	}
+	return ""
+}
+
+func (x *ServiceEndpoints) GetEndpoints() []*EndpointDetail {
+	if x != nil {
+		return x.Endpoints
+	}
+	return nil
+}
+
+type EndpointDetail struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	ReplicaId     string                 `protobuf:"bytes,2,opt,name=replica_id,json=replicaId,proto3" json:"replica_id,omitempty"`
+	Ip            string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port          int32                  `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	Healthy       bool                   `protobuf:"varint,5,opt,name=healthy,proto3" json:"healthy,omitempty"`
+	Weight        float64                `protobuf:"fixed64,6,opt,name=weight,proto3" json:"weight,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EndpointDetail) Reset() {
+	*x = EndpointDetail{}
+	mi := &file_api_proto_heartbeat_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EndpointDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EndpointDetail) ProtoMessage() {}
+
+func (x *EndpointDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_heartbeat_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EndpointDetail.ProtoReflect.Descriptor instead.
+func (*EndpointDetail) Descriptor() ([]byte, []int) {
+	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *EndpointDetail) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *EndpointDetail) GetReplicaId() string {
+	if x != nil {
+		return x.ReplicaId
+	}
+	return ""
+}
+
+func (x *EndpointDetail) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *EndpointDetail) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *EndpointDetail) GetHealthy() bool {
+	if x != nil {
+		return x.Healthy
+	}
+	return false
+}
+
+func (x *EndpointDetail) GetWeight() float64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
 type ModelReplicaDetails struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ReplicaId     string                 `protobuf:"bytes,1,opt,name=replica_id,json=replicaId,proto3" json:"replica_id,omitempty"`
@@ -84,7 +228,7 @@ type ModelReplicaDetails struct {
 
 func (x *ModelReplicaDetails) Reset() {
 	*x = ModelReplicaDetails{}
-	mi := &file_api_proto_heartbeat_proto_msgTypes[1]
+	mi := &file_api_proto_heartbeat_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +240,7 @@ func (x *ModelReplicaDetails) String() string {
 func (*ModelReplicaDetails) ProtoMessage() {}
 
 func (x *ModelReplicaDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_heartbeat_proto_msgTypes[1]
+	mi := &file_api_proto_heartbeat_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -109,7 +253,7 @@ func (x *ModelReplicaDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelReplicaDetails.ProtoReflect.Descriptor instead.
 func (*ModelReplicaDetails) Descriptor() ([]byte, []int) {
-	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{1}
+	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ModelReplicaDetails) GetReplicaId() string {
@@ -200,7 +344,7 @@ type RequestHeartbeatResponse struct {
 
 func (x *RequestHeartbeatResponse) Reset() {
 	*x = RequestHeartbeatResponse{}
-	mi := &file_api_proto_heartbeat_proto_msgTypes[2]
+	mi := &file_api_proto_heartbeat_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -212,7 +356,7 @@ func (x *RequestHeartbeatResponse) String() string {
 func (*RequestHeartbeatResponse) ProtoMessage() {}
 
 func (x *RequestHeartbeatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_heartbeat_proto_msgTypes[2]
+	mi := &file_api_proto_heartbeat_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -225,7 +369,7 @@ func (x *RequestHeartbeatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestHeartbeatResponse.ProtoReflect.Descriptor instead.
 func (*RequestHeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{2}
+	return file_api_proto_heartbeat_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RequestHeartbeatResponse) GetNodeID() string {
@@ -253,9 +397,21 @@ var File_api_proto_heartbeat_proto protoreflect.FileDescriptor
 
 const file_api_proto_heartbeat_proto_rawDesc = "" +
 	"\n" +
-	"\x19api/proto/heartbeat.proto\x12\fheartbeatAPI\"1\n" +
+	"\x19api/proto/heartbeat.proto\x12\fheartbeatAPI\"~\n" +
 	"\x17RequestHeartbeatRequest\x12\x16\n" +
-	"\x06nodeID\x18\x01 \x01(\tR\x06nodeID\"\xdb\x02\n" +
+	"\x06nodeID\x18\x01 \x01(\tR\x06nodeID\x12K\n" +
+	"\x11service_endpoints\x18\x02 \x03(\v2\x1e.heartbeatAPI.ServiceEndpointsR\x10serviceEndpoints\"i\n" +
+	"\x10ServiceEndpoints\x12\x19\n" +
+	"\bmodel_id\x18\x01 \x01(\tR\amodelId\x12:\n" +
+	"\tendpoints\x18\x02 \x03(\v2\x1c.heartbeatAPI.EndpointDetailR\tendpoints\"\x9e\x01\n" +
+	"\x0eEndpointDetail\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1d\n" +
+	"\n" +
+	"replica_id\x18\x02 \x01(\tR\treplicaId\x12\x0e\n" +
+	"\x02ip\x18\x03 \x01(\tR\x02ip\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\x05R\x04port\x12\x18\n" +
+	"\ahealthy\x18\x05 \x01(\bR\ahealthy\x12\x16\n" +
+	"\x06weight\x18\x06 \x01(\x01R\x06weight\"\xdb\x02\n" +
 	"\x13ModelReplicaDetails\x12\x1d\n" +
 	"\n" +
 	"replica_id\x18\x01 \x01(\tR\treplicaId\x12\x19\n" +
@@ -292,21 +448,25 @@ func file_api_proto_heartbeat_proto_rawDescGZIP() []byte {
 	return file_api_proto_heartbeat_proto_rawDescData
 }
 
-var file_api_proto_heartbeat_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_api_proto_heartbeat_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_api_proto_heartbeat_proto_goTypes = []any{
 	(*RequestHeartbeatRequest)(nil),  // 0: heartbeatAPI.RequestHeartbeatRequest
-	(*ModelReplicaDetails)(nil),      // 1: heartbeatAPI.ModelReplicaDetails
-	(*RequestHeartbeatResponse)(nil), // 2: heartbeatAPI.RequestHeartbeatResponse
+	(*ServiceEndpoints)(nil),         // 1: heartbeatAPI.ServiceEndpoints
+	(*EndpointDetail)(nil),           // 2: heartbeatAPI.EndpointDetail
+	(*ModelReplicaDetails)(nil),      // 3: heartbeatAPI.ModelReplicaDetails
+	(*RequestHeartbeatResponse)(nil), // 4: heartbeatAPI.RequestHeartbeatResponse
 }
 var file_api_proto_heartbeat_proto_depIdxs = []int32{
-	1, // 0: heartbeatAPI.RequestHeartbeatResponse.ModelReplicas:type_name -> heartbeatAPI.ModelReplicaDetails
-	0, // 1: heartbeatAPI.HeartbeatAPI.RequestHeartbeat:input_type -> heartbeatAPI.RequestHeartbeatRequest
-	2, // 2: heartbeatAPI.HeartbeatAPI.RequestHeartbeat:output_type -> heartbeatAPI.RequestHeartbeatResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: heartbeatAPI.RequestHeartbeatRequest.service_endpoints:type_name -> heartbeatAPI.ServiceEndpoints
+	2, // 1: heartbeatAPI.ServiceEndpoints.endpoints:type_name -> heartbeatAPI.EndpointDetail
+	3, // 2: heartbeatAPI.RequestHeartbeatResponse.ModelReplicas:type_name -> heartbeatAPI.ModelReplicaDetails
+	0, // 3: heartbeatAPI.HeartbeatAPI.RequestHeartbeat:input_type -> heartbeatAPI.RequestHeartbeatRequest
+	4, // 4: heartbeatAPI.HeartbeatAPI.RequestHeartbeat:output_type -> heartbeatAPI.RequestHeartbeatResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_heartbeat_proto_init() }
@@ -320,7 +480,7 @@ func file_api_proto_heartbeat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_heartbeat_proto_rawDesc), len(file_api_proto_heartbeat_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

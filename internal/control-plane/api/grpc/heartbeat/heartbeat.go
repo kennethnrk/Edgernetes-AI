@@ -11,7 +11,7 @@ import (
 )
 
 // CallHeartbeat calls the heartbeat API to get the heartbeat response.
-func CallHeartbeat(node store.NodeInfo) (*heartbeatpb.RequestHeartbeatResponse, error) {
+func CallHeartbeat(node store.NodeInfo, endpoints []*heartbeatpb.ServiceEndpoints) (*heartbeatpb.RequestHeartbeatResponse, error) {
 	nodeAddr := fmt.Sprintf("%s:%d", node.IP, node.Port)
 
 	conn, err := grpc.NewClient(nodeAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -22,7 +22,8 @@ func CallHeartbeat(node store.NodeInfo) (*heartbeatpb.RequestHeartbeatResponse, 
 
 	client := heartbeatpb.NewHeartbeatAPIClient(conn)
 	resp, err := client.RequestHeartbeat(context.Background(), &heartbeatpb.RequestHeartbeatRequest{
-		NodeID: node.ID,
+		NodeID:           node.ID,
+		ServiceEndpoints: endpoints,
 	})
 	if err != nil {
 		return nil, err

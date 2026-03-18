@@ -14,12 +14,16 @@ import (
 
 func HandleHeartbeat(s *store.Store) error {
 	log.Println("Heartbeat controller started")
+
+	// Pre-compute endpoints to send to all nodes
+	endpoints := buildServiceEndpoints(s)
+
 	nodes, err := registrycontroller.ListNodesByStatuses(s, []constants.Status{constants.StatusOnline, constants.StatusUnknown})
 	if err != nil {
 		return err
 	}
 	for _, node := range nodes {
-		resp, err := heartbeatcaller.CallHeartbeat(node)
+		resp, err := heartbeatcaller.CallHeartbeat(node, endpoints)
 		if err != nil {
 			log.Printf("Failed to call heartbeat for node %s", node.ID)
 			if node.LastHeartbeat.Add(40 * time.Second).Before(time.Now()) {
@@ -96,6 +100,50 @@ func convertStringToReplicaStatus(statusStr string) constants.ModelReplicaStatus
 	default:
 		return constants.ModelReplicaStatusUnknown
 	}
+}
+
+// buildServiceEndpoints compiles the cluster-wide active replicas list.
+func buildServiceEndpoints(s *store.Store) []*heartbeatpb.ServiceEndpoints {
+	onlineNodes, err := registrycontroller.ListNodesByStatuses(s, []constants.Status{constants.StatusOnline})
+	if err != nil {
+		return nil
+	}
+	
+	endpointsByModel := make(map[string][]*heartbeatpb.EndpointDetail)
+
+	for _, node := range onlineNodes {
+		var tops float64
+		for _, dev := range node.ResourceCapabilities.ComputeDevices {
+			tops += dev.TOPS
+		}
+
+		for _, replicaID := range node.AssignedModels {
+			r, exists, err := replicascheduler.GetReplicaByID(s, replicaID)
+			if err != nil || !exists || r.Status != constants.ModelReplicaStatusRunning {
+				continue
+			}
+
+			endpoint := &heartbeatpb.EndpointDetail{
+				NodeId:    node.ID,
+				ReplicaId: r.ID,
+				Ip:        node.IP,
+				Port:      int32(node.Port),
+				Healthy:   true,
+				Weight:    tops,
+			}
+			endpointsByModel[r.ModelID] = append(endpointsByModel[r.ModelID], endpoint)
+		}
+	}
+
+	var result []*heartbeatpb.ServiceEndpoints
+	for modelID, eps := range endpointsByModel {
+		result = append(result, &heartbeatpb.ServiceEndpoints{
+			ModelId:   modelID,
+			Endpoints: eps,
+		})
+	}
+
+	return result
 }
 
 // startHeartbeatHandler runs the heartbeat handler periodically in a separate goroutine.
