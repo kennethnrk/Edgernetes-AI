@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package inferAPI;
+
+option go_package = "internal/common/pb/infer;inferpb";
+
+service InferAPI {
+    rpc Infer(InferRequest) returns (InferResponse);
+}
+
+message InferRequest {
+    string model_id = 1;
+    repeated float input_data = 2;
+    bool scaling_enabled = 3;
+    bool is_forwarded = 4;
+}
+
+message InferResponse {
+    bool success = 1;
+    float prediction = 2;
+    string error_message = 3;
+}
