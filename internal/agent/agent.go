@@ -19,6 +19,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 
 	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
+	heartbeatpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/heartbeat"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
 )
 
@@ -46,8 +47,27 @@ type Agent struct {
 	ResourceCapabilities store.ResourceCapabilities `json:"resource_capabilities"`
 	AssignedModels       []ModelReplicaDetails      `json:"assigned_models"`
 
+	endpointCache map[string][]*heartbeatpb.EndpointDetail
+	endpointMu    sync.RWMutex
+
 	mu            sync.RWMutex
 	LastHeartbeat time.Time `json:"last_heartbeat"`
+}
+
+func (a *Agent) UpdateEndpoints(endpoints []*heartbeatpb.ServiceEndpoints) {
+	newCache := make(map[string][]*heartbeatpb.EndpointDetail)
+	for _, se := range endpoints {
+		newCache[se.ModelId] = se.Endpoints
+	}
+	a.endpointMu.Lock()
+	a.endpointCache = newCache
+	a.endpointMu.Unlock()
+}
+
+func (a *Agent) GetEndpoints(modelID string) []*heartbeatpb.EndpointDetail {
+	a.endpointMu.RLock()
+	defer a.endpointMu.RUnlock()
+	return a.endpointCache[modelID]
 }
 
 func (a *Agent) AssignModel(model ModelReplicaDetails) error {
@@ -170,6 +190,7 @@ func GetAgentInfo(nodeName *string) *Agent {
 			},
 			ComputeDevices: computeDevices,
 		},
+		endpointCache: make(map[string][]*heartbeatpb.EndpointDetail),
 		LastHeartbeat: time.Now(),
 	}
 	return agent

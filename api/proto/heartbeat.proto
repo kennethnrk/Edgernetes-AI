@@ -10,6 +10,21 @@ service HeartbeatAPI {
 
 message RequestHeartbeatRequest {
     string nodeID = 1;
+    repeated ServiceEndpoints service_endpoints = 2;
+}
+
+message ServiceEndpoints {
+    string model_id = 1;
+    repeated EndpointDetail endpoints = 2;
+}
+
+message EndpointDetail {
+    string node_id = 1;
+    string replica_id = 2;
+    string ip = 3;
+    int32 port = 4;
+    bool healthy = 5;
+    double weight = 6;
 }
 
 message ModelReplicaDetails {

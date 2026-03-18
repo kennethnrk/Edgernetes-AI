@@ -32,6 +32,10 @@ func (s *heartbeatServer) RequestHeartbeat(ctx context.Context, req *heartbeatpb
 	// Update last heartbeat time
 	s.agent.UpdateLastHeartbeat()
 
+	if len(req.ServiceEndpoints) > 0 {
+		s.agent.UpdateEndpoints(req.ServiceEndpoints)
+	}
+
 	// Call checkHealth to get model replicas and health status
 	modelReplicas, success, err := agentmonitor.CheckHealth(s.agent)
 	if err != nil {
