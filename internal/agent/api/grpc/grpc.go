@@ -8,6 +8,8 @@ import (
 	"github.com/kennethnrk/edgernetes-ai/internal/agent"
 	deploypb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/deploy"
 	heartbeatpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/heartbeat"
+	inferpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/infer"
+	grpcinfer "github.com/kennethnrk/edgernetes-ai/internal/agent/api/grpc/infer"
 	"google.golang.org/grpc"
 )
 
@@ -31,7 +33,11 @@ func StartGRPCServer(a *agent.Agent, addr string) error {
 	deploySrv := NewDeployServer(a)
 	deploypb.RegisterDeployAPIServer(s, deploySrv)
 
-	log.Printf("Heartbeat & Deploy gRPC servers listening on %s", addr)
+	// Create and register infer server
+	inferSrv := grpcinfer.NewInferServer(a)
+	inferpb.RegisterInferAPIServer(s, inferSrv)
+
+	log.Printf("Heartbeat, Deploy, & Infer gRPC servers listening on %s", addr)
 
 	// Start server (blocking)
 	if err := s.Serve(lis); err != nil {

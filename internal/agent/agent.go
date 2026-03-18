@@ -18,6 +18,8 @@ import (
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/mem"
 
+	"github.com/kennethnrk/edgernetes-ai/internal/agent/balancer"
+	"github.com/kennethnrk/edgernetes-ai/internal/agent/runway"
 	"github.com/kennethnrk/edgernetes-ai/internal/common/constants"
 	heartbeatpb "github.com/kennethnrk/edgernetes-ai/internal/common/pb/heartbeat"
 	"github.com/kennethnrk/edgernetes-ai/internal/control-plane/store"
@@ -49,6 +51,7 @@ type Agent struct {
 
 	endpointCache map[string][]*heartbeatpb.EndpointDetail
 	endpointMu    sync.RWMutex
+	lb            balancer.LoadBalancer
 
 	mu            sync.RWMutex
 	LastHeartbeat time.Time `json:"last_heartbeat"`
@@ -191,7 +194,46 @@ func GetAgentInfo(nodeName *string) *Agent {
 			ComputeDevices: computeDevices,
 		},
 		endpointCache: make(map[string][]*heartbeatpb.EndpointDetail),
+		lb:            balancer.NewWeightedRoundRobin(),
 		LastHeartbeat: time.Now(),
 	}
 	return agent
+}
+
+// HandleInfer routes the inference request locally or forwards it based on the endpoint cache.
+func (a *Agent) HandleInfer(modelID string, inputData []float32, isForwarded bool, scalingEnabled bool) (float32, error) {
+	// First check if the current agent has the model
+	if slices.ContainsFunc(a.AssignedModels, func(m ModelReplicaDetails) bool { return m.ModelID == modelID }) {
+		var replicaID string
+		for _, m := range a.AssignedModels {
+			if m.ModelID == modelID {
+				replicaID = m.ID
+				break
+			}
+		}
+
+		result, err := runway.ModelInference(replicaID, inputData, scalingEnabled)
+		if err != nil {
+			return 0, fmt.Errorf("local inference failed: %v", err)
+		}
+		return result, nil
+	}
+
+	// Loop detection: do not forward an already forwarded request
+	if isForwarded {
+		return 0, fmt.Errorf("model %s not available on this node and request was already forwarded", modelID)
+	}
+
+	// Not local, check cache and forward to a peer
+	endpoints := a.GetEndpoints(modelID)
+	if len(endpoints) == 0 {
+		return 0, fmt.Errorf("no healthy peers known for model %s", modelID)
+	}
+
+	target, err := a.lb.Pick(endpoints)
+	if err != nil {
+		return 0, fmt.Errorf("failed to select peer: %v", err)
+	}
+
+	return a.forwardInfer(target, modelID, inputData, scalingEnabled)
 }
