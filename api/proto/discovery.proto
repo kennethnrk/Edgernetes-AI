@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package discoveryAPI;
+
+option go_package = "internal/common/pb/discovery;discoverypb";
+
+service DiscoveryAPI {
+    rpc GetNodes(GetNodesRequest) returns (GetNodesResponse);
+}
+
+message GetNodesRequest {}
+
+message NodeEndpoint {
+    string node_id = 1;
+    string ip = 2;
+    int32 port = 3;
+}
+
+message GetNodesResponse {
+    repeated NodeEndpoint nodes = 1;
+}
